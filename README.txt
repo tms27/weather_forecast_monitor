@@ -1,0 +1,1 @@
+Project to automatically retrieve the weather forecast from different websites
