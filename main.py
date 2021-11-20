@@ -22,27 +22,34 @@ def DataFrame_column_descriptions(num_of_days):
     column_names.extend(temperature_columns)
     return column_names
 
+# Create objects of websites from which the weather forecasts are retrieved
 wetter_de = Wetter_de(url='https://www.wetter.de/deutschland/wetter-muenchen-18225562.html?q=m%C3%BCnchen',
-                      temperature_excess_chars=1)
-wetter_de.retrieve_temperatures()
-print(wetter_de.temperatures_float)
+                      temperature_excess_chars=1,
+                      forecasted_days=14,
+                      data_filename='wetter_de.csv')
+
 
 wetter_com = Wetter_com(url='https://www.wetter.com/wetter_aktuell/wettervorhersage/16_tagesvorhersage/deutschland/muenchen/DE0006515.html',
-                        temperature_excess_chars=1)
-wetter_com.retrieve_temperatures()
-print(wetter_com.temperatures_float)
+                        temperature_excess_chars=1,
+                        forecasted_days=16,
+                        data_filename='wetter_com.csv')
 
-proplanta= Proplanta(url=['https://www.proplanta.de/Agrar-Wetter/M%FCnchen-AgrarWetter.html',
+
+proplanta_de = Proplanta_de(url=['https://www.proplanta.de/Agrar-Wetter/M%FCnchen-AgrarWetter.html',
                                'https://www.proplanta.de/Agrar-Wetter/profi-wetter.php?SITEID=60&PLZ=M%FCnchen&STADT=M%FCnchen&WETTERaufrufen=stadt&Wtp=&SUCHE=Agrarwetter&wT=4',
                                'https://www.proplanta.de/Agrar-Wetter/profi-wetter.php?SITEID=60&PLZ=M%FCnchen&STADT=M%FCnchen&WETTERaufrufen=stadt&Wtp=&SUCHE=Agrarwetter&wT=7',
                                'https://www.proplanta.de/Agrar-Wetter/profi-wetter.php?SITEID=60&PLZ=M%FCnchen&STADT=M%FCnchen&WETTERaufrufen=stadt&Wtp=&SUCHE=Agrarwetter&wT=11'],
-                     temperature_excess_chars=3)
-proplanta.retrieve_temperatures()
-print(proplanta.temperatures_float)
+                            temperature_excess_chars=3,
+                            forecasted_days=14,
+                            data_filename='proplanta_de.csv')
+forecast_websites = [wetter_de, wetter_com, proplanta_de]
 
+# retrieve weather forecast
+for website in forecast_websites:
+    #website.retrieve_temperatures()
+    #print(website.temperatures_float)
+    website.update_csv_file()
 
-
-print(DataFrame_column_descriptions(10))
 
 
 
