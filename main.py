@@ -14,12 +14,12 @@ def weekdaylist_from_current_weekday(length_of_list = 7):
             j = 0
         else:
             j += 1
-
-
     return weekdays_from_today
+
 class Website:
-    def __init__(self, url):
+    def __init__(self, url, temperature_excess_chars):
         self.url = url
+        self.temperature_excess_chars = temperature_excess_chars
     def retrieve_temperatures(self):
         #is defined individually for every website due to differences in the
         pass
@@ -32,7 +32,7 @@ class Wetter_de (Website):
         self.temperatures_float = []
         for self.temperature in self.temperatures_str:
             self.temperature_str = self.temperature.get_text()
-            self.temperatures_float.append(float(self.temperature_str[:-1]))
+            self.temperatures_float.append(float(self.temperature_str[:-1 * self.temperature_excess_chars]))
 
 class Wetter_com (Website):
     def retrieve_temperatures(self):  # saves list of maximum temperature of today and coming days in temperatures_float
@@ -42,7 +42,7 @@ class Wetter_com (Website):
         self.temperatures_float = []
         for self.temperature in self.temperatures_str:
             self.temperature_str = self.temperature.get_text()
-            self.temperatures_float.append(float(self.temperature_str[:-1]))
+            self.temperatures_float.append(float(self.temperature_str[:-1 * self.temperature_excess_chars]))
 
 class Proplanta(Website):
     def retrieve_temperatures(self):  # saves list of maximum temperature of today and coming days in temperatures_float
@@ -54,21 +54,24 @@ class Proplanta(Website):
             self.temperatures_str = self.rows.find_all(attrs={'class': 'SCHRIFT_FORMULAR_WERTE_MITTE'})
             for self.temperature in self.temperatures_str:
                 self.temperature_str = self.temperature.get_text()
-                self.temperatures_float.append(float(self.temperature_str[:-3]))
+                self.temperatures_float.append(float(self.temperature_str[:-1 * self.temperature_excess_chars]))
 
 
 
 
-wetter_de = Wetter_de(url='https://www.wetter.de/deutschland/wetter-muenchen-18225562.html?q=m%C3%BCnchen')
+wetter_de = Wetter_de(url='https://www.wetter.de/deutschland/wetter-muenchen-18225562.html?q=m%C3%BCnchen',
+                      temperature_excess_chars=1)
 wetter_de.retrieve_temperatures()
 print(wetter_de.temperatures_float)
-wetter_com = Wetter_com(url='https://www.wetter.com/wetter_aktuell/wettervorhersage/16_tagesvorhersage/deutschland/muenchen/DE0006515.html')
+wetter_com = Wetter_com(url='https://www.wetter.com/wetter_aktuell/wettervorhersage/16_tagesvorhersage/deutschland/muenchen/DE0006515.html',
+                        temperature_excess_chars=1)
 wetter_com.retrieve_temperatures()
 print(wetter_com.temperatures_float)
-proplanta= Proplanta(url= ['https://www.proplanta.de/Agrar-Wetter/M%FCnchen-AgrarWetter.html',
+proplanta= Proplanta(url=['https://www.proplanta.de/Agrar-Wetter/M%FCnchen-AgrarWetter.html',
                                'https://www.proplanta.de/Agrar-Wetter/profi-wetter.php?SITEID=60&PLZ=M%FCnchen&STADT=M%FCnchen&WETTERaufrufen=stadt&Wtp=&SUCHE=Agrarwetter&wT=4',
                                'https://www.proplanta.de/Agrar-Wetter/profi-wetter.php?SITEID=60&PLZ=M%FCnchen&STADT=M%FCnchen&WETTERaufrufen=stadt&Wtp=&SUCHE=Agrarwetter&wT=7',
-                               'https://www.proplanta.de/Agrar-Wetter/profi-wetter.php?SITEID=60&PLZ=M%FCnchen&STADT=M%FCnchen&WETTERaufrufen=stadt&Wtp=&SUCHE=Agrarwetter&wT=11'])
+                               'https://www.proplanta.de/Agrar-Wetter/profi-wetter.php?SITEID=60&PLZ=M%FCnchen&STADT=M%FCnchen&WETTERaufrufen=stadt&Wtp=&SUCHE=Agrarwetter&wT=11'],
+                     temperature_excess_chars=3)
 proplanta.retrieve_temperatures()
 print(proplanta.temperatures_float)
 
