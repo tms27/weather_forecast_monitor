@@ -1,21 +1,28 @@
 from bs4 import BeautifulSoup
 import requests
 import os.path
+import re
 import pandas as pd
 from datetime import datetime
 
 class Website:
-    def __init__(self, url, temperature_excess_chars, forecasted_days, data_filename):
+    def __init__(self, url, temperature_excess_chars, rain_chance_excess_chars, forecasted_days, data_filename):
         self.url = url
         self.temperature_excess_chars = temperature_excess_chars
+        self.rain_chance_excess_chars = rain_chance_excess_chars
         self.temperatures_float = []
+        self.rain_chances_float = []
         self.forecasted_days = forecasted_days
         self.data_filename = data_filename
 
         # create names of columns in .csv file
         self.column_names = ['Day', 'Month', 'Year']
-        self.temperature_columns = ['max Temp. ' + str(i) for i in range(self.forecasted_days)]
+        self.temperature_columns = [f"max Temp. {i}" for i in range(self.forecasted_days)]
         self.column_names.extend(self.temperature_columns)
+        self.rain_chance_columns = [f"Chance of Rain {i}" for i in range(self.forecasted_days)]
+        self.column_names.extend(self.rain_chance_columns)
+
+
 
 
 
@@ -27,26 +34,16 @@ class Website:
             self.temperatures_float.append(float(self.temperature_str[:-1 * self.temperature_excess_chars]))
 
 
-        #self.rain_chances_str = self.retrieve_rain_chances_str(self.soup)
-        #print(self.rain_chances_str)
+        self.rain_chances_str = self.retrieve_rain_chances_str(self.soup)
+        for self.rain_chance_str in self.rain_chances_str:
+            self.rain_chances_float.append(float(self.rain_chance_str[:-1 * self.rain_chance_excess_chars]))
+        print(self.rain_chances_float)
 
     def retrieve_temperatures_str(self, soup):
         pass  # is defined individually for every website due to differences in the structures of the websites
 
     def retrieve_rain_chances_str(self, soup):
         pass
-    '''
-    def retrieve_wetter_de_test(self):
-        self.website = requests.get(self.url)
-        self.soup = BeautifulSoup(self.website.content, 'html.parser')
-        self.boxes = self.soup.findAll(attrs={'class': 'weather-daybox__main__hourInfos'})
-        for self.box in self.boxes:
-            self.values_of_day = self.box.find_all('dd')
-            self.rain = self.values_of_day[0].get_text()
-            print(self.rain)
-            #for self.value in self.values_of_day:
-                #print(self.value.get_text())
-    '''
 
     def update_csv_file(self):
         # retrieve date
@@ -59,7 +56,7 @@ class Website:
         self.retrieve_temperatures()
 
         # write data to file
-        self.new_data = [self.day, self.month, self.year, *self.temperatures_float]
+        self.new_data = [self.day, self.month, self.year, *self.temperatures_float, *self.rain_chances_float]
         if os.path.isfile(self.data_filename) is False:
             self.df = pd.DataFrame(data=[self.new_data], columns=self.column_names)
             self.df.to_csv(self.data_filename, index=False)
@@ -119,6 +116,41 @@ class Wetter_com (Website):
     def retrieve_temperatures_str(self, soup):
         self.temp = soup.find_all(attrs={'class': 'temp-max'})
         return [self.temperature.get_text() for self.temperature in self.temp]
+
+    def retrieve_rain_chances_str(self, soup):
+        #self.weather_grid = soup.find(attrs={'class': 'weather-grid'})
+        self.dds = soup.find_all('dd')
+        '''
+        self.rain_chances = []
+        self.rain_amount = []
+        self.sun_hours = []
+        self.reaL_feel = []
+        for self.value in self.dds:
+            self.value_str = self.value.get_text()
+            if '%' in self.value_str:
+                self.percent_index = self.value_str.find('%')
+                self.first_digit_index =
+                self.rain_chances.append(self.value_str)
+                if "l" in self.value_str:
+                    self.rain_amount.append(self.value_str)
+            elif 'h' in self.value_str:
+                self.sun_hours.append(self.value_str)
+            elif 'gefühlt' in self.value_str:
+                self.reaL_feel.append(self.value_str)
+            else:
+                print("Unexpected string in weather_com retrieve_rain_chances_str")
+        
+        '''
+        #self.dds = map(str,self.dds)
+        #print(self.dds)
+        self.dds_str_list = map(str, self.dds)
+        self.dds_str = ' '.join(self.dds_str_list)
+        #print(re.findall('\d\d %|\d %',self.dds_str))
+        return re.findall('\d\d %|\d %',self.dds_str)
+        #self.temp = self.weather_grid.find('dd')
+        #print(self.temp)
+
+
 
 class Proplanta_de(Website):
 
