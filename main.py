@@ -42,6 +42,7 @@ proplanta_de = Proplanta_de(url=['https://www.proplanta.de/Agrar-Wetter/M%FCnche
                             temperature_excess_chars=3,
                             forecasted_days=14,
                             data_filename='proplanta_de.csv')
+
 forecast_websites = [wetter_de, wetter_com, proplanta_de]
 
 # retrieve weather forecast
@@ -49,6 +50,7 @@ for website in forecast_websites:
     #website.retrieve_temperatures()
     #print(website.temperatures_float)
     website.update_csv_file()
+
 
 
 

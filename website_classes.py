@@ -16,27 +16,37 @@ class Website:
         self.column_names = ['Day', 'Month', 'Year']
         self.temperature_columns = ['max Temp. ' + str(i) for i in range(self.forecasted_days)]
         self.column_names.extend(self.temperature_columns)
-        '''
-        if os.path.isfile(self.data_filename) is False:
-            self.column_names = ['Day', 'Month', 'Year']
-            self.temperature_columns = ['max Temp. ' + str(i) for i in range(self.forecasted_days)]
-            self.column_names.extend(self.temperature_columns)
-            self.df = pd.DataFrame(columns=self.column_names)
-            self.df.to_csv(self.data_filename)
-            #with open(data_filename, 'w') as file:
-        '''
+
 
 
     def retrieve_temperatures(self):  # saves list of maximum temperature of today and coming days in temperatures_float
         self.website = requests.get(self.url)
         self.soup = BeautifulSoup(self.website.content, 'html.parser')
         self.temperatures_str = self.retrieve_temperatures_str(self.soup)
-        for self.temperature in self.temperatures_str:
-            self.temperature_str = self.temperature.get_text()
+        for self.temperature_str in self.temperatures_str:
             self.temperatures_float.append(float(self.temperature_str[:-1 * self.temperature_excess_chars]))
+
+
+        #self.rain_chances_str = self.retrieve_rain_chances_str(self.soup)
+        #print(self.rain_chances_str)
 
     def retrieve_temperatures_str(self, soup):
         pass  # is defined individually for every website due to differences in the structures of the websites
+
+    def retrieve_rain_chances_str(self, soup):
+        pass
+    '''
+    def retrieve_wetter_de_test(self):
+        self.website = requests.get(self.url)
+        self.soup = BeautifulSoup(self.website.content, 'html.parser')
+        self.boxes = self.soup.findAll(attrs={'class': 'weather-daybox__main__hourInfos'})
+        for self.box in self.boxes:
+            self.values_of_day = self.box.find_all('dd')
+            self.rain = self.values_of_day[0].get_text()
+            print(self.rain)
+            #for self.value in self.values_of_day:
+                #print(self.value.get_text())
+    '''
 
     def update_csv_file(self):
         # retrieve date
@@ -74,12 +84,41 @@ class Website:
 class Wetter_de (Website):
 
     def retrieve_temperatures_str(self, soup):
-        return soup.find_all(attrs={'class': 'meteogram-slot__temperature'})
+        #return soup.find_all(attrs={'class': 'meteogram-slot__temperature'})
+        self.temp = soup.find_all(attrs={'class': 'meteogram-slot__temperature'})
+        return [self.temperature.get_text() for self.temperature in self.temp]
+    def retrieve_rain_chances_str(self, soup):
+        # find out on which days the chance of rain is not zero
+        self.rainAmountclasses = soup.find_all(attrs={'class': 'meteogram-slot__rainAmount'})
+        self.rainAmountclasses= map(str, self.rainAmountclasses)
+        self.rain_true_false= []
+        for self.rainAmountclass_str in self.rainAmountclasses:
+            if "height:0%" in self.rainAmountclass_str:
+                self.rain_true_false.append(False)
+            else:
+                self.rain_true_false.append(True)
+        self.rainChance_nonzero_indices = [i for i, x in enumerate(self.rain_true_false) if x is True]
+        # retrieve non-zero rain chances and insert them at the right place in the list
+        self.rainChances_str = ['0%'] * self.forecasted_days
+        self.rainChances_nonzero = soup.find_all(attrs={'class': 'meteogram-slot__rainChance'})
+        for self.index, self.rainChance_nonzero in zip(self.rainChance_nonzero_indices, self.rainChances_nonzero):
+            self.rainChance_temp = self.rainChance_nonzero.get_text()
+            self.rainChance_str = self.rainChance_temp[5:-3]
+            try:
+                self.temp = float(self.rainChance_str[:-1])
+            except ValueError:
+                self.rainChance_str= '5%'
+            self.rainChances_str[self.index] = self.rainChance_str
+        return self.rainChances_str
+
+
+
 
 class Wetter_com (Website):
 
     def retrieve_temperatures_str(self, soup):
-        return soup.find_all(attrs={'class': 'temp-max'})
+        self.temp = soup.find_all(attrs={'class': 'temp-max'})
+        return [self.temperature.get_text() for self.temperature in self.temp]
 
 class Proplanta_de(Website):
 
@@ -91,4 +130,5 @@ class Proplanta_de(Website):
 
     def retrieve_temperatures_str(self, soup):
         self.rows = soup.find('tr', id='TMAX')
-        return self.rows.find_all(attrs={'class': 'SCHRIFT_FORMULAR_WERTE_MITTE'})
+        self.temp = self.rows.find_all(attrs={'class': 'SCHRIFT_FORMULAR_WERTE_MITTE'})
+        return [self.temperature.get_text() for self.temperature in self.temp]
