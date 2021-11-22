@@ -113,6 +113,27 @@ class Wetter_com (Website):
         self.dds_str = ' '.join(self.dds_str_list)
         return re.findall('\d\d\d %|\d\d %|\d %', self.dds_str)
 
+    def retrieve_rain_amount_str(self, soup):
+        self.dds = soup.find_all('dd')
+        self.rain_amounts = []
+        for self.content in self.dds:
+            self.content_text = self.content.get_text()
+            if '%' in self.content_text:
+                self.rain_amount = re.findall('\d\d,\d l|\d,\d l', self.content_text)
+                if self.rain_amount:
+                    self.rain_amount = self.rain_amount[0].replace(',', '.')
+                    self.rain_amounts.append(self.rain_amount)
+                else:
+                    self.rain_amounts.append('0.0 l')
+        return self.rain_amounts
+
+    def retrieve_real_feel(self):
+        self.website = requests.get(self.url)
+        self.soup = BeautifulSoup(self.website.content, 'html.parser')
+        self.dds = self.soup.find_all('dd')
+        self.dds_str_list = map(str, self.dds)
+        self.dds_str = ' '.join(self.dds_str_list)
+        print(self.dds_str)
 
 class Proplanta_de(Website):
 
