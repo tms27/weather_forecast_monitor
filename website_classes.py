@@ -133,7 +133,10 @@ class Wetter_com (Website):
         self.dds = self.soup.find_all('dd')
         self.dds_str_list = map(str, self.dds)
         self.dds_str = ' '.join(self.dds_str_list)
-        print(self.dds_str)
+        self.real_feels_str = re.findall('-\d\d°|-\d°|\d\d°|\d°', self.dds_str)
+        self.real_feels_str = self.real_feels_str[0::2]
+        self.real_feels_float = [float(self.real_feel_str[:-1]) for self.real_feel_str in self.real_feels_str]
+        return self.real_feels_float
 
 class Proplanta_de(Website):
 
