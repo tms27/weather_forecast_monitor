@@ -31,13 +31,11 @@ class Website:
         self.soup = BeautifulSoup(self.website.content, 'html.parser')
         self.temperatures_str = self.retrieve_temperatures_str(self.soup)
         for self.temperature_str in self.temperatures_str:
-            self.temperatures_float.append(float(self.temperature_str[:-1 * self.temperature_excess_chars]))
-
+            self.temperatures_float.append(float(re.findall('-\d\d|-\d|\d\d|\d', self.temperature_str)[0]))
 
         self.rain_chances_str = self.retrieve_rain_chances_str(self.soup)
         for self.rain_chance_str in self.rain_chances_str:
-            self.rain_chances_float.append(float(self.rain_chance_str[:-1 * self.rain_chance_excess_chars]))
-        print(self.rain_chances_float)
+            self.rain_chances_float.append(float(re.findall('\d\d\d|\d\d|\d', self.rain_chance_str)[0]))
 
     def retrieve_temperatures_str(self, soup):
         pass  # is defined individually for every website due to differences in the structures of the websites
@@ -100,7 +98,7 @@ class Wetter_de (Website):
         self.rainChances_nonzero = soup.find_all(attrs={'class': 'meteogram-slot__rainChance'})
         for self.index, self.rainChance_nonzero in zip(self.rainChance_nonzero_indices, self.rainChances_nonzero):
             self.rainChance_temp = self.rainChance_nonzero.get_text()
-            self.rainChance_str = self.rainChance_temp[5:-3]
+            self.rainChance_str = self.rainChance_temp[5:-3] #todo rewrite section with regular expression
             try:
                 self.temp = float(self.rainChance_str[:-1])
             except ValueError:
@@ -118,37 +116,10 @@ class Wetter_com (Website):
         return [self.temperature.get_text() for self.temperature in self.temp]
 
     def retrieve_rain_chances_str(self, soup):
-        #self.weather_grid = soup.find(attrs={'class': 'weather-grid'})
         self.dds = soup.find_all('dd')
-        '''
-        self.rain_chances = []
-        self.rain_amount = []
-        self.sun_hours = []
-        self.reaL_feel = []
-        for self.value in self.dds:
-            self.value_str = self.value.get_text()
-            if '%' in self.value_str:
-                self.percent_index = self.value_str.find('%')
-                self.first_digit_index =
-                self.rain_chances.append(self.value_str)
-                if "l" in self.value_str:
-                    self.rain_amount.append(self.value_str)
-            elif 'h' in self.value_str:
-                self.sun_hours.append(self.value_str)
-            elif 'gefühlt' in self.value_str:
-                self.reaL_feel.append(self.value_str)
-            else:
-                print("Unexpected string in weather_com retrieve_rain_chances_str")
-        
-        '''
-        #self.dds = map(str,self.dds)
-        #print(self.dds)
         self.dds_str_list = map(str, self.dds)
         self.dds_str = ' '.join(self.dds_str_list)
-        #print(re.findall('\d\d %|\d %',self.dds_str))
-        return re.findall('\d\d %|\d %',self.dds_str)
-        #self.temp = self.weather_grid.find('dd')
-        #print(self.temp)
+        return re.findall('\d\d\d %|\d\d %|\d %', self.dds_str)
 
 
 
