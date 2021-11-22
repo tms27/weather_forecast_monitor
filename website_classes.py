@@ -5,6 +5,7 @@ import re
 import pandas as pd
 from datetime import datetime
 
+
 class Website:
     def __init__(self, url, forecasted_days, data_filename):
         self.url = url
@@ -20,17 +21,16 @@ class Website:
         self.rain_chance_columns = [f"Chance of Rain {i}" for i in range(self.forecasted_days)]
         self.column_names.extend(self.rain_chance_columns)
 
-
-
-
-
-    def retrieve_temperatures(self):  # saves list of maximum temperature of today and coming days in temperatures_float
+    def retrieve_data(self):  # saves list of maximum temperature of today and coming days in temperatures_float
         self.website = requests.get(self.url)
         self.soup = BeautifulSoup(self.website.content, 'html.parser')
+
+        # retrieve maximum temperatures
         self.temperatures_str = self.retrieve_temperatures_str(self.soup)
         for self.temperature_str in self.temperatures_str:
             self.temperatures_float.append(float(re.findall('-\d\d|-\d|\d\d|\d', self.temperature_str)[0]))
 
+        # retrieve likelihoods of rain
         self.rain_chances_str = self.retrieve_rain_chances_str(self.soup)
         for self.rain_chance_str in self.rain_chances_str:
             if 'not given' in self.rain_chance_str:
@@ -42,7 +42,7 @@ class Website:
         pass  # is defined individually for every website due to differences in the structures of the websites
 
     def retrieve_rain_chances_str(self, soup):
-        pass
+        pass  # is defined individually for every website due to differences in the structures of the websites
 
     def update_csv_file(self):
         # retrieve date
@@ -52,7 +52,7 @@ class Website:
         self.year = self.today.year
 
         # retrieve data from website
-        self.retrieve_temperatures()
+        self.retrieve_data()
 
         # write data to file
         self.new_data = [self.day, self.month, self.year, *self.temperatures_float, *self.rain_chances_float]
@@ -72,17 +72,13 @@ class Website:
             self.df.to_csv(self.data_filename, index=False)
 
 
-
-
-
-
-
 class Wetter_de (Website):
 
     def retrieve_temperatures_str(self, soup):
         #return soup.find_all(attrs={'class': 'meteogram-slot__temperature'})
         self.temp = soup.find_all(attrs={'class': 'meteogram-slot__temperature'})
         return [self.temperature.get_text() for self.temperature in self.temp]
+
     def retrieve_rain_chances_str(self, soup):
         # find out on which days the chance of rain is not zero
         self.rainAmountclasses = soup.find_all(attrs={'class': 'meteogram-slot__rainAmount'})
@@ -105,8 +101,6 @@ class Wetter_de (Website):
         return self.rainChances_str
 
 
-
-
 class Wetter_com (Website):
 
     def retrieve_temperatures_str(self, soup):
@@ -120,13 +114,12 @@ class Wetter_com (Website):
         return re.findall('\d\d\d %|\d\d %|\d %', self.dds_str)
 
 
-
 class Proplanta_de(Website):
 
-    def retrieve_temperatures(self):  # method of superclass needs to be overwritten because forecast is spread across multiple urls
+    def retrieve_data(self):  # method of superclass needs to be overwritten because forecast is spread across multiple urls
         self.url_memory = self.url
         for self.url in self.url_memory:
-            Website.retrieve_temperatures(self)
+            Website.retrieve_data(self)
         self.url = self.url_memory
 
     def retrieve_temperatures_str(self, soup):
