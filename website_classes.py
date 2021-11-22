@@ -6,10 +6,8 @@ import pandas as pd
 from datetime import datetime
 
 class Website:
-    def __init__(self, url, temperature_excess_chars, rain_chance_excess_chars, forecasted_days, data_filename):
+    def __init__(self, url, forecasted_days, data_filename):
         self.url = url
-        self.temperature_excess_chars = temperature_excess_chars
-        self.rain_chance_excess_chars = rain_chance_excess_chars
         self.temperatures_float = []
         self.rain_chances_float = []
         self.forecasted_days = forecasted_days

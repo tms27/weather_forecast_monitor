@@ -24,15 +24,11 @@ def DataFrame_column_descriptions(num_of_days):
 
 # Create objects of websites from which the weather forecasts are retrieved
 wetter_de = Wetter_de(url='https://www.wetter.de/deutschland/wetter-muenchen-18225562.html?q=m%C3%BCnchen',
-                      temperature_excess_chars=1, # todo delete unnecessary excess chars variables here and in __init__
-                      rain_chance_excess_chars=1,
                       forecasted_days=14,
                       data_filename='wetter_de.csv')
 
 
 wetter_com = Wetter_com(url='https://www.wetter.com/wetter_aktuell/wettervorhersage/16_tagesvorhersage/deutschland/muenchen/DE0006515.html',
-                        temperature_excess_chars=1,
-                        rain_chance_excess_chars=2,
                         forecasted_days=16,
                         data_filename='wetter_com.csv')
 
@@ -41,13 +37,11 @@ proplanta_de = Proplanta_de(url=['https://www.proplanta.de/Agrar-Wetter/M%FCnche
                                'https://www.proplanta.de/Agrar-Wetter/profi-wetter.php?SITEID=60&PLZ=M%FCnchen&STADT=M%FCnchen&WETTERaufrufen=stadt&Wtp=&SUCHE=Agrarwetter&wT=4',
                                'https://www.proplanta.de/Agrar-Wetter/profi-wetter.php?SITEID=60&PLZ=M%FCnchen&STADT=M%FCnchen&WETTERaufrufen=stadt&Wtp=&SUCHE=Agrarwetter&wT=7',
                                'https://www.proplanta.de/Agrar-Wetter/profi-wetter.php?SITEID=60&PLZ=M%FCnchen&STADT=M%FCnchen&WETTERaufrufen=stadt&Wtp=&SUCHE=Agrarwetter&wT=11'],
-                            temperature_excess_chars=3,
-                            rain_chance_excess_chars=1,
                             forecasted_days=14,
                             data_filename='proplanta_de.csv')
 
 forecast_websites = [wetter_de, wetter_com, proplanta_de]
-forecast_websites = [proplanta_de]
+#forecast_websites = [proplanta_de]
 #website = requests.get('https://www.proplanta.de/Agrar-Wetter/profi-wetter.php?SITEID=60&PLZ=M%FCnchen&STADT=M%FCnchen&WETTERaufrufen=stadt&Wtp=&SUCHE=Agrarwetter&wT=7')
 #soup = BeautifulSoup(website.content, 'html.parser')
 #print(proplanta_de.retrieve_rain_chances_str(soup))
