@@ -35,7 +35,10 @@ class Website:
 
         self.rain_chances_str = self.retrieve_rain_chances_str(self.soup)
         for self.rain_chance_str in self.rain_chances_str:
-            self.rain_chances_float.append(float(re.findall('\d\d\d|\d\d|\d', self.rain_chance_str)[0]))
+            if 'not given' in self.rain_chance_str:
+                self.rain_chances_float.append(self.rain_chance_str)
+            else:
+                self.rain_chances_float.append(float(re.findall('\d\d\d|\d\d|\d', self.rain_chance_str)[0]))
 
     def retrieve_temperatures_str(self, soup):
         pass  # is defined individually for every website due to differences in the structures of the websites
@@ -133,5 +136,25 @@ class Proplanta_de(Website):
         self.temp = self.rows.find_all(attrs={'class': 'SCHRIFT_FORMULAR_WERTE_MITTE'})
         return [self.temperature.get_text() for self.temperature in self.temp]
 
-#    def retrieve_rain_chances_str(self, soup):
+    def retrieve_rain_chances_str(self, soup):
+        # retrieve chance of rain during the  day
+        self.rows = soup.find('tr', id='NW') # returns None if nothing found
+        if self.rows is None:
+            self.num_of_days = len(self.retrieve_temperatures_str(soup)) # determine number of forecasted days on website
+            return ['not given'] * self.num_of_days
+        self.temp = self.rows.find_all(attrs={'class': 'SCHRIFT_FORMULAR_WERTE_MITTE'})
+        self.rain_chances_day_str = [self.rain_chance.get_text() for self.rain_chance in self.temp]
+        #retrieve chance of rain at night
+        self.rows = soup.find('tr', id='NW_Nacht')
+        self.temp = self.rows.find_all(attrs={'class': 'SCHRIFT_FORMULAR_WERTE_MITTE'})
+        self.rain_chances_night_str = [self.rain_chance.get_text() for self.rain_chance in self.temp]
+        # check if chance of rain at night or during the day is higher and use the higher one for returned list
+        self.rain_chances = []
+        for self.rain_chance_day, self.rain_chance_night in zip(self.rain_chances_day_str, self.rain_chances_night_str):
+            if float(self.rain_chance_day[:-2]) > float(self.rain_chance_night[:-2]):
+                self.rain_chances.append(self.rain_chance_day)
+            else:
+                self.rain_chances.append(self.rain_chance_night)
+        return self.rain_chances
+
 
