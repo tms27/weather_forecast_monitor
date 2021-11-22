@@ -42,12 +42,12 @@ proplanta_de = Proplanta_de(url=['https://www.proplanta.de/Agrar-Wetter/M%FCnche
 
 forecast_websites = [wetter_de, wetter_com, proplanta_de]
 #forecast_websites = [proplanta_de]
-website = requests.get('https://www.wetter.com/wetter_aktuell/wettervorhersage/16_tagesvorhersage/deutschland/muenchen/DE0006515.html')
-soup = BeautifulSoup(website.content, 'html.parser')
+#website = requests.get('https://www.proplanta.de/Agrar-Wetter/M%FCnchen-AgrarWetter.html')
+#soup = BeautifulSoup(website.content, 'html.parser')
 #print(proplanta_de.retrieve_rain_chances_str(soup))
 #print(soup)
-a = wetter_com.retrieve_real_feel()
-print(a)
+#a = proplanta_de.retrieve_rain_amounts_str(soup)
+#print(a)
 
 # retrieve weather forecast
 for website in forecast_websites:

@@ -11,6 +11,7 @@ class Website:
         self.url = url
         self.temperatures_float = []
         self.rain_chances_float = []
+        self.rain_amounts_float = []
         self.forecasted_days = forecasted_days
         self.data_filename = data_filename
 
@@ -20,8 +21,10 @@ class Website:
         self.column_names.extend(self.temperature_columns)
         self.rain_chance_columns = [f"Chance of Rain {i}" for i in range(self.forecasted_days)]
         self.column_names.extend(self.rain_chance_columns)
+        self.rain_amount_columns = [f"Amount of Rain {i}" for i in range(self.forecasted_days)]
+        self.column_names.extend(self.rain_amount_columns)
 
-    def retrieve_data(self):  # saves list of maximum temperature of today and coming days in temperatures_float
+    def retrieve_data(self):
         self.website = requests.get(self.url)
         self.soup = BeautifulSoup(self.website.content, 'html.parser')
 
@@ -38,10 +41,24 @@ class Website:
             else:
                 self.rain_chances_float.append(float(re.findall('\d\d\d|\d\d|\d', self.rain_chance_str)[0]))
 
+        # retrieve rain amount
+        self.rain_amounts_str = self.retrieve_rain_amounts_str(self.soup)
+        for self.rain_amount_str in self.rain_amounts_str:
+            if 'not given' in self.rain_amount_str:
+                self.rain_amounts_float.append(self.rain_amount_str)
+            else:
+                self.rain_amounts_float.append(float(re.findall('\d\d.\d|\d.\d|\d', self.rain_amount_str)[0]))
+
+
+
+
     def retrieve_temperatures_str(self, soup):
         pass  # is defined individually for every website due to differences in the structures of the websites
 
     def retrieve_rain_chances_str(self, soup):
+        pass  # is defined individually for every website due to differences in the structures of the websites
+
+    def retrieve_rain_amounts_str(self, soup):
         pass  # is defined individually for every website due to differences in the structures of the websites
 
     def update_csv_file(self):
@@ -55,7 +72,10 @@ class Website:
         self.retrieve_data()
 
         # write data to file
-        self.new_data = [self.day, self.month, self.year, *self.temperatures_float, *self.rain_chances_float]
+        self.new_data = [self.day, self.month, self.year,
+                         *self.temperatures_float,
+                         *self.rain_chances_float,
+                         *self.rain_amounts_float]
         if os.path.isfile(self.data_filename) is False:
             self.df = pd.DataFrame(data=[self.new_data], columns=self.column_names)
             self.df.to_csv(self.data_filename, index=False)
@@ -100,6 +120,8 @@ class Wetter_de (Website):
             self.rainChances_str[self.index] = self.rainChance_str
         return self.rainChances_str
 
+    def retrieve_rain_amounts_str(self, soup):
+        return ["not given"] * self.forecasted_days
 
 class Wetter_com (Website):
 
@@ -113,7 +135,7 @@ class Wetter_com (Website):
         self.dds_str = ' '.join(self.dds_str_list)
         return re.findall('\d\d\d %|\d\d %|\d %', self.dds_str)
 
-    def retrieve_rain_amount_str(self, soup):
+    def retrieve_rain_amounts_str(self, soup):
         self.dds = soup.find_all('dd')
         self.rain_amounts = []
         for self.content in self.dds:
@@ -153,17 +175,19 @@ class Proplanta_de(Website):
 
     def retrieve_rain_chances_str(self, soup):
         # retrieve chance of rain during the  day
-        self.rows = soup.find('tr', id='NW') # returns None if nothing found
+        self.rows = soup.find('tr', id='NW')  # returns None if nothing found
         if self.rows is None:
-            self.num_of_days = len(self.retrieve_temperatures_str(soup)) # determine number of forecasted days on website
+            self.num_of_days = len(self.retrieve_temperatures_str(soup))  # determine number of forecasted days on website
             return ['not given'] * self.num_of_days
         self.temp = self.rows.find_all(attrs={'class': 'SCHRIFT_FORMULAR_WERTE_MITTE'})
         self.rain_chances_day_str = [self.rain_chance.get_text() for self.rain_chance in self.temp]
+
         #retrieve chance of rain at night
         self.rows = soup.find('tr', id='NW_Nacht')
         self.temp = self.rows.find_all(attrs={'class': 'SCHRIFT_FORMULAR_WERTE_MITTE'})
         self.rain_chances_night_str = [self.rain_chance.get_text() for self.rain_chance in self.temp]
-        # check if chance of rain at night or during the day is higher and use the higher one for returned list
+
+        # check if chance of rain at night or  day is higher and use the higher one for returned list
         self.rain_chances = []
         for self.rain_chance_day, self.rain_chance_night in zip(self.rain_chances_day_str, self.rain_chances_night_str):
             if float(self.rain_chance_day[:-2]) > float(self.rain_chance_night[:-2]):
@@ -171,5 +195,14 @@ class Proplanta_de(Website):
             else:
                 self.rain_chances.append(self.rain_chance_night)
         return self.rain_chances
+
+    def retrieve_rain_amounts_str(self, soup):
+        self.rows = soup.find('tr', id='NS_24H')  # returns None if nothing found
+        if self.rows is None:
+            self.num_of_days = len(self.retrieve_temperatures_str(soup))  # determine number of forecasted days on website
+            return ['not given'] * self.num_of_days
+        self.temp = self.rows.find_all(attrs={'class': 'SCHRIFT_FORMULAR_WERTE_MITTE'})
+        self.rain_amounts_str = [self.rain_amount.get_text().replace(',','.') for self.rain_amount in self.temp]
+        return self.rain_amounts_str
 
 
