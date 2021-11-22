@@ -93,16 +93,13 @@ class Wetter_de (Website):
             else:
                 self.rain_true_false.append(True)
         self.rainChance_nonzero_indices = [i for i, x in enumerate(self.rain_true_false) if x is True]
+
         # retrieve non-zero rain chances and insert them at the right place in the list
         self.rainChances_str = ['0%'] * self.forecasted_days
         self.rainChances_nonzero = soup.find_all(attrs={'class': 'meteogram-slot__rainChance'})
         for self.index, self.rainChance_nonzero in zip(self.rainChance_nonzero_indices, self.rainChances_nonzero):
-            self.rainChance_temp = self.rainChance_nonzero.get_text()
-            self.rainChance_str = self.rainChance_temp[5:-3] #todo rewrite section with regular expression
-            try:
-                self.temp = float(self.rainChance_str[:-1])
-            except ValueError:
-                self.rainChance_str= '5%'
+            self.rainChance_text = self.rainChance_nonzero.get_text()
+            self.rainChance_str = re.findall('\d\d\d%|\d\d%|\d%', self.rainChance_text)[0]
             self.rainChances_str[self.index] = self.rainChance_str
         return self.rainChances_str
 
@@ -125,7 +122,7 @@ class Wetter_com (Website):
 
 class Proplanta_de(Website):
 
-    def retrieve_temperatures(self):  # method of superclass needs to be overwritten because forecast is spread across mutliple urls
+    def retrieve_temperatures(self):  # method of superclass needs to be overwritten because forecast is spread across multiple urls
         self.url_memory = self.url
         for self.url in self.url_memory:
             Website.retrieve_temperatures(self)
@@ -135,3 +132,6 @@ class Proplanta_de(Website):
         self.rows = soup.find('tr', id='TMAX')
         self.temp = self.rows.find_all(attrs={'class': 'SCHRIFT_FORMULAR_WERTE_MITTE'})
         return [self.temperature.get_text() for self.temperature in self.temp]
+
+#    def retrieve_rain_chances_str(self, soup):
+
