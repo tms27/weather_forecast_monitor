@@ -91,6 +91,8 @@ class Website:
 
             self.df.to_csv(self.data_filename, index=False)
 
+    def data(self):
+        return pd.read_csv(self.data_filename)
 
 class Wetter_de (Website):
 

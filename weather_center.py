@@ -1,10 +1,8 @@
 from bs4 import BeautifulSoup
 import requests
-import os.path
-import re
-import pandas as pd
 from datetime import datetime
 from datetime import timedelta
+from datetime import date
 
 
 class WeatherCenter:
@@ -22,4 +20,7 @@ class WeatherCenter:
         self.bs = self.table.find_all('b')
         self.max_T = float(self.bs[0].get_text())
         self.rain_amount = float(self.bs[-3].get_text())
+
+
+
         return self.max_T, self.rain_amount

@@ -1,7 +1,7 @@
 from datetime import datetime
 from website_classes import *
 from weather_center import WeatherCenter
-
+from accuracy_monitor import AccuracyMonitor
 def weekdaylist_from_current_weekday(length_of_list = 7):
     weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     current_weekday = datetime.today().weekday()
@@ -50,8 +50,11 @@ proplanta_de = Proplanta_de(url=['https://www.proplanta.de/Agrar-Wetter/M%FCnche
 #a = proplanta_de.retrieve_rain_amounts_str(soup)
 #print(a)
 weather_center = WeatherCenter()
-max_T, rain_amount = weather_center.retrieve_max_T_and_rain_amount(day=9, month=1, year=2016)
-print(max_T, rain_amount)
+#max_T, rain_amount = weather_center.retrieve_max_T_and_rain_amount(day=9, month=1, year=2016)
+#print(max_T, rain_amount)
+a = weather_center.retrieve_max_T_and_rain_amount(day=9, month=1, year=2016)
+print(a)
+wetter_com_monitor = AccuracyMonitor(wetter_com, 'wetter_com_acc_log.csv')
 # retrieve weather forecast
 #for website in forecast_websites:
     #website.retrieve_temperatures()
