@@ -1,5 +1,6 @@
 from datetime import datetime
 from website_classes import *
+from weather_center import WeatherCenter
 
 def weekdaylist_from_current_weekday(length_of_list = 7):
     weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
@@ -40,7 +41,7 @@ proplanta_de = Proplanta_de(url=['https://www.proplanta.de/Agrar-Wetter/M%FCnche
                             forecasted_days=14,
                             data_filename='proplanta_de.csv')
 
-forecast_websites = [wetter_de, wetter_com, proplanta_de]
+#forecast_websites = [wetter_de, wetter_com, proplanta_de]
 #forecast_websites = [proplanta_de]
 #website = requests.get('https://www.proplanta.de/Agrar-Wetter/M%FCnchen-AgrarWetter.html')
 #soup = BeautifulSoup(website.content, 'html.parser')
@@ -48,12 +49,14 @@ forecast_websites = [wetter_de, wetter_com, proplanta_de]
 #print(soup)
 #a = proplanta_de.retrieve_rain_amounts_str(soup)
 #print(a)
-
+weather_center = WeatherCenter()
+max_T, rain_amount = weather_center.retrieve_max_T_and_rain_amount(day=9, month=1, year=2016)
+print(max_T, rain_amount)
 # retrieve weather forecast
-for website in forecast_websites:
+#for website in forecast_websites:
     #website.retrieve_temperatures()
     #print(website.temperatures_float)
-    website.update_csv_file()
+#    website.update_csv_file()
 
 
 
