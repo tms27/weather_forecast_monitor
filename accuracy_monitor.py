@@ -36,25 +36,79 @@ class AccuracyMonitor:
                     self.df = self.df.append(self.new_row_df, ignore_index=True)
                 self.df.to_csv(self.filename, index=False)
 
-    def avg_max_T_deviation(self, forecasted_day, sequence=None, absolute_value=True):
+    def avg_max_T_deviation(self, forecasted_day=3, sequence=False, absolute_value=True, relative=False):
         self.deviations = []
         if 'not given' in set(self.df_website[f"max Temp. {forecasted_day}"]):
             raise ValueError(f"Quantity is not forecasted by the website on day {forecasted_day}")
+
+        # calculate deviations from actual value
         for self.index, self.row_website in self.df_website.iterrows():
             self.date_of_forecast = date(self.row_website['Year'], self.month_str_to_int[self.row_website['Month']], self.row_website['Day'])
             self.date_forecasted = self.date_of_forecast + timedelta(days=forecasted_day)
             self.row = self.df[(self.df.Day == self.date_forecasted.day)
                                & (self.df.Month == self.date_forecasted.month)
                                & (self.df.Year == self.date_forecasted.year)]
-            if self.row.empty:
+            if self.row.empty:  # continue if actual value is not yet available
                 continue
             self.deviation = self.row_website.at[f"max Temp. {forecasted_day}"] - self.row.at[self.row.index[0], 'max Temp.']
             if absolute_value:
                 self.deviation = abs(self.deviation)
+            if relative:
+                self.deviation /= self.row.at[self.row.index[0], 'max Temp.']
             self.deviations.append(self.deviation)
-        self.deviation_avg = sum(self.deviations) / len(self.deviations)
-        print(self.deviations)
-        print(self.deviation_avg)
+
+        # calculate average deviation
+        if sequence is False:
+            return sum(self.deviations) / len(self.deviations)
+        else:
+            self.avg_seq = []
+            for self.i in range(1, len(self.deviations)+1):
+                self.avg_seq.append(sum(self.deviations[:self.i]) / self.i)
+            if (sequence in range(1, len(self.deviations)+1)) & sequence is not True:
+                return self.avg_seq[-1 * sequence:]
+            else:
+                return self.avg_seq
+
+
+
+    def avg_deviation(self, quantity_name, forecasted_day=3, sequence=False, absolute_value=True, relative=False):
+        self.deviations = []
+        if 'not given' in set(self.df_website[f"max Temp. {forecasted_day}"]):
+            raise ValueError(f"Quantity is not forecasted by the website on day {forecasted_day}")
+
+        # calculate deviations from actual value
+        for self.index, self.row_website in self.df_website.iterrows():
+            self.date_of_forecast = date(self.row_website['Year'], self.month_str_to_int[self.row_website['Month']], self.row_website['Day'])
+            self.date_forecasted = self.date_of_forecast + timedelta(days=forecasted_day)
+            self.row = self.df[(self.df.Day == self.date_forecasted.day)
+                               & (self.df.Month == self.date_forecasted.month)
+                               & (self.df.Year == self.date_forecasted.year)]
+            if self.row.empty:  # continue if actual value is not yet available
+                continue
+            self.deviation = self.row_website.at[f"max Temp. {forecasted_day}"] - self.row.at[self.row.index[0], 'max Temp.']
+            if absolute_value:
+                self.deviation = abs(self.deviation)
+            if relative:
+                self.deviation /= self.row.at[self.row.index[0], 'max Temp.']
+            self.deviations.append(self.deviation)
+
+        # calculate average deviation
+        if sequence is False:
+            return sum(self.deviations) / len(self.deviations)
+        else:
+            self.avg_seq = []
+            for self.i in range(1, len(self.deviations)+1):
+                self.avg_seq.append(sum(self.deviations[:self.i]) / self.i)
+            if (sequence in range(1, len(self.deviations)+1)) & sequence is not True:
+                return self.avg_seq[-1 * sequence:]
+            else:
+                return self.avg_seq
+
+
+
+
+        #print(self.deviations)
+        #print(self.deviation_avg)
 
     def avg_max_T_deviation_rel(self):
         pass

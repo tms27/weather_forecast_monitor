@@ -55,7 +55,8 @@ weather_center = WeatherCenter()
 #a = weather_center.retrieve_max_T_and_rain_amount(day=9, month=1, year=2016)
 #print(a)
 wetter_com_monitor = AccuracyMonitor(wetter_com, 'wetter_com_acc_log.csv')
-wetter_com_monitor.avg_max_T_deviation(5)
+a = wetter_com_monitor.avg_max_T_deviation(5, sequence=True, absolute_value=False, relative=False)
+print(a)
 # retrieve weather forecast
 #for website in forecast_websites:
     #website.retrieve_temperatures()
