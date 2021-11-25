@@ -17,40 +17,37 @@ class Website:
 
         # create names of columns in .csv file
         self.column_names = ['Day', 'Month', 'Year']
-        self.temperature_columns = [f"max Temp. {i}" for i in range(self.forecasted_days)]
-        self.column_names.extend(self.temperature_columns)
-        self.rain_chance_columns = [f"Chance of Rain {i}" for i in range(self.forecasted_days)]
-        self.column_names.extend(self.rain_chance_columns)
-        self.rain_amount_columns = [f"Amount of Rain {i}" for i in range(self.forecasted_days)]
-        self.column_names.extend(self.rain_amount_columns)
+        temperature_columns = [f"max Temp. {i}" for i in range(self.forecasted_days)]
+        self.column_names.extend(temperature_columns)
+        rain_chance_columns = [f"Chance of Rain {i}" for i in range(self.forecasted_days)]
+        self.column_names.extend(rain_chance_columns)
+        rain_amount_columns = [f"Amount of Rain {i}" for i in range(self.forecasted_days)]
+        self.column_names.extend(rain_amount_columns)
 
     def retrieve_data(self):
-        self.website = requests.get(self.url)
-        self.soup = BeautifulSoup(self.website.content, 'html.parser')
+        website = requests.get(self.url)
+        soup = BeautifulSoup(website.content, 'html.parser')
 
         # retrieve maximum temperatures
-        self.temperatures_str = self.retrieve_temperatures_str(self.soup)
-        for self.temperature_str in self.temperatures_str:
-            self.temperatures_float.append(float(re.findall('-\d\d|-\d|\d\d|\d', self.temperature_str)[0]))
+        temperatures_str = self.retrieve_temperatures_str(soup)
+        for temperature_str in temperatures_str:
+            self.temperatures_float.append(float(re.findall('-\d\d|-\d|\d\d|\d', temperature_str)[0]))
 
         # retrieve likelihoods of rain
-        self.rain_chances_str = self.retrieve_rain_chances_str(self.soup)
-        for self.rain_chance_str in self.rain_chances_str:
-            if 'not given' in self.rain_chance_str:
-                self.rain_chances_float.append(self.rain_chance_str)
+        rain_chances_str = self.retrieve_rain_chances_str(soup)
+        for rain_chance_str in rain_chances_str:
+            if 'not given' in rain_chance_str:
+                self.rain_chances_float.append(rain_chance_str)
             else:
-                self.rain_chances_float.append(float(re.findall('\d\d\d|\d\d|\d', self.rain_chance_str)[0]))
+                self.rain_chances_float.append(float(re.findall('\d\d\d|\d\d|\d', rain_chance_str)[0]))
 
         # retrieve rain amount
-        self.rain_amounts_str = self.retrieve_rain_amounts_str(self.soup)
-        for self.rain_amount_str in self.rain_amounts_str:
-            if 'not given' in self.rain_amount_str:
-                self.rain_amounts_float.append(self.rain_amount_str)
+        rain_amounts_str = self.retrieve_rain_amounts_str(soup)
+        for rain_amount_str in rain_amounts_str:
+            if 'not given' in rain_amount_str:
+                self.rain_amounts_float.append(rain_amount_str)
             else:
-                self.rain_amounts_float.append(float(re.findall('\d\d.\d|\d.\d|\d', self.rain_amount_str)[0]))
-
-
-
+                self.rain_amounts_float.append(float(re.findall('\d\d.\d|\d.\d|\d', rain_amount_str)[0]))
 
     def retrieve_temperatures_str(self, soup):
         pass  # is defined individually for every website due to differences in the structures of the websites
@@ -63,33 +60,33 @@ class Website:
 
     def update_csv_file(self):
         # retrieve date
-        self.today = datetime.today()
-        self.day = self.today.day
-        self.month = self.today.strftime("%B")
-        self.year = self.today.year
+        today = datetime.today()
+        day = today.day
+        month = today.strftime("%B")
+        year = today.year
 
         # retrieve data from website
         self.retrieve_data()
 
         # write data to file
-        self.new_data = [self.day, self.month, self.year,
-                         *self.temperatures_float,
-                         *self.rain_chances_float,
-                         *self.rain_amounts_float]
+        new_data = [day, month, year,
+                    *self.temperatures_float,
+                    *self.rain_chances_float,
+                    *self.rain_amounts_float]
         if os.path.isfile(self.data_filename) is False:
-            self.df = pd.DataFrame(data=[self.new_data], columns=self.column_names)
-            self.df.to_csv(self.data_filename, index=False)
+            df = pd.DataFrame(data=[new_data], columns=self.column_names)
+            df.to_csv(self.data_filename, index=False)
         else:
-            self.df_new_data = pd.DataFrame(data=[self.new_data], columns=self.column_names)
-            self.df = pd.read_csv(self.data_filename)
+            df_new_data = pd.DataFrame(data=[new_data], columns=self.column_names)
+            df = pd.read_csv(self.data_filename)
             # check if data for today already exists. If Yes, update data in respective row
-            if ((self.df['Day'] == self.day) & (self.df['Month'] == self.month) & (self.df['Year'] == self.year)).any():
-                self.index = self.df[(self.df['Day'] == self.day) & (self.df['Month'] == self.month) & (self.df['Year'] == self.year)].index.tolist()
-                self.df.iloc[self.index[0], :] = self.df_new_data.iloc[0, :]
+            if ((df['Day'] == day) & (df['Month'] == month) & (df['Year'] == year)).any():
+                index = df[(df['Day'] == day) & (df['Month'] == month) & (df['Year'] == year)].index.tolist()
+                df.iloc[index[0], :] = df_new_data.iloc[0, :]
             else:
-                self.df = self.df.append(self.df_new_data, ignore_index=True)
+                df = df.append(df_new_data, ignore_index=True)
 
-            self.df.to_csv(self.data_filename, index=False)
+            df.to_csv(self.data_filename, index=False)
 
     def data(self):
         return pd.read_csv(self.data_filename)
@@ -97,30 +94,29 @@ class Website:
 class Wetter_de (Website):
 
     def retrieve_temperatures_str(self, soup):
-        #return soup.find_all(attrs={'class': 'meteogram-slot__temperature'})
-        self.temp = soup.find_all(attrs={'class': 'meteogram-slot__temperature'})
-        return [self.temperature.get_text() for self.temperature in self.temp]
+        temp = soup.find_all(attrs={'class': 'meteogram-slot__temperature'})
+        return [temperature.get_text() for temperature in temp]
 
     def retrieve_rain_chances_str(self, soup):
         # find out on which days the chance of rain is not zero
-        self.rainAmountclasses = soup.find_all(attrs={'class': 'meteogram-slot__rainAmount'})
-        self.rainAmountclasses= map(str, self.rainAmountclasses)
-        self.rain_true_false= []
-        for self.rainAmountclass_str in self.rainAmountclasses:
-            if "height:0%" in self.rainAmountclass_str:
-                self.rain_true_false.append(False)
+        rain_amount_classes = soup.find_all(attrs={'class': 'meteogram-slot__rainAmount'})
+        rain_amount_classes = map(str, rain_amount_classes)
+        rain_true_false = []
+        for rain_amount_class_str in rain_amount_classes:
+            if "height:0%" in rain_amount_class_str:
+                rain_true_false.append(False)
             else:
-                self.rain_true_false.append(True)
-        self.rainChance_nonzero_indices = [i for i, x in enumerate(self.rain_true_false) if x is True]
+                rain_true_false.append(True)
+        rainchance_nonzero_indices = [i for i, x in enumerate(rain_true_false) if x is True]
 
         # retrieve non-zero rain chances and insert them at the right place in the list
-        self.rainChances_str = ['0%'] * self.forecasted_days
-        self.rainChances_nonzero = soup.find_all(attrs={'class': 'meteogram-slot__rainChance'})
-        for self.index, self.rainChance_nonzero in zip(self.rainChance_nonzero_indices, self.rainChances_nonzero):
-            self.rainChance_text = self.rainChance_nonzero.get_text()
-            self.rainChance_str = re.findall('\d\d\d%|\d\d%|\d%', self.rainChance_text)[0]
-            self.rainChances_str[self.index] = self.rainChance_str
-        return self.rainChances_str
+        rain_chances_str = ['0%'] * self.forecasted_days
+        rain_chances_nonzero = soup.find_all(attrs={'class': 'meteogram-slot__rainChance'})
+        for index, rain_chance_nonzero in zip(rainchance_nonzero_indices, rain_chances_nonzero):
+            rain_chance_text = rain_chance_nonzero.get_text()
+            rain_chance_str = re.findall('\d\d\d%|\d\d%|\d%', rain_chance_text)[0]
+            rain_chances_str[index] = rain_chance_str
+        return rain_chances_str
 
     def retrieve_rain_amounts_str(self, soup):
         return ["not given"] * self.forecasted_days
@@ -128,38 +124,38 @@ class Wetter_de (Website):
 class Wetter_com (Website):
 
     def retrieve_temperatures_str(self, soup):
-        self.temp = soup.find_all(attrs={'class': 'temp-max'})
-        return [self.temperature.get_text() for self.temperature in self.temp]
+        temp = soup.find_all(attrs={'class': 'temp-max'})
+        return [temperature.get_text() for temperature in temp]
 
     def retrieve_rain_chances_str(self, soup):
-        self.dds = soup.find_all('dd')
-        self.dds_str_list = map(str, self.dds)
-        self.dds_str = ' '.join(self.dds_str_list)
-        return re.findall('\d\d\d %|\d\d %|\d %', self.dds_str)
+        dds = soup.find_all('dd')
+        dds_str_list = map(str, dds)
+        dds_str = ' '.join(dds_str_list)
+        return re.findall('\d\d\d %|\d\d %|\d %', dds_str)
 
     def retrieve_rain_amounts_str(self, soup):
-        self.dds = soup.find_all('dd')
-        self.rain_amounts = []
-        for self.content in self.dds:
-            self.content_text = self.content.get_text()
-            if '%' in self.content_text:
-                self.rain_amount = re.findall('\d\d,\d l|\d,\d l', self.content_text)
-                if self.rain_amount:
-                    self.rain_amount = self.rain_amount[0].replace(',', '.')
-                    self.rain_amounts.append(self.rain_amount)
+        dds = soup.find_all('dd')
+        rain_amounts = []
+        for content in dds:
+            content_text = content.get_text()
+            if '%' in content_text:
+                rain_amount = re.findall('\d\d,\d l|\d,\d l', content_text)
+                if rain_amount:
+                    rain_amount = rain_amount[0].replace(',', '.')
+                    rain_amounts.append(rain_amount)
                 else:
-                    self.rain_amounts.append('0.0 l')
-        return self.rain_amounts
+                    rain_amounts.append('0.0 l')
+        return rain_amounts
 
     def retrieve_real_feel(self):
-        self.website = requests.get(self.url)
-        self.soup = BeautifulSoup(self.website.content, 'html.parser')
-        self.dds = self.soup.find_all('dd')
-        self.dds_str_list = map(str, self.dds)
-        self.dds_str = ' '.join(self.dds_str_list)
-        self.real_feels_str = re.findall('-\d\d°|-\d°|\d\d°|\d°', self.dds_str)
-        self.real_feels_str = self.real_feels_str[0::2]
-        self.real_feels_float = [float(self.real_feel_str[:-1]) for self.real_feel_str in self.real_feels_str]
+        website = requests.get(self.url)
+        soup = BeautifulSoup(website.content, 'html.parser')
+        dds = soup.find_all('dd')
+        dds_str_list = map(str, dds)
+        dds_str = ' '.join(dds_str_list)
+        real_feels_str = re.findall('-\d\d°|-\d°|\d\d°|\d°', dds_str)
+        real_feels_str = real_feels_str[0::2]
+        self.real_feels_float = [float(real_feel_str[:-1]) for real_feel_str in real_feels_str]
         return self.real_feels_float
 
 class Proplanta_de(Website):
@@ -204,7 +200,7 @@ class Proplanta_de(Website):
             self.num_of_days = len(self.retrieve_temperatures_str(soup))  # determine number of forecasted days on website
             return ['not given'] * self.num_of_days
         self.temp = self.rows.find_all(attrs={'class': 'SCHRIFT_FORMULAR_WERTE_MITTE'})
-        self.rain_amounts_str = [self.rain_amount.get_text().replace(',','.') for self.rain_amount in self.temp]
-        return self.rain_amounts_str
+        rain_amounts_str = [self.rain_amount.get_text().replace(',','.') for self.rain_amount in self.temp]
+        return rain_amounts_str
 
 

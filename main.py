@@ -57,10 +57,10 @@ print(a)
 a = wetter_com_monitor.avg_rain_amount_deviation(5, sequence=2, absolute_value=True, relative=True)
 print(a)
 # retrieve weather forecast
-#for website in forecast_websites:
+for website in forecast_websites:
     #website.retrieve_temperatures()
     #print(website.temperatures_float)
-    #website.update_csv_file()
+    website.update_csv_file()
 
 
 
