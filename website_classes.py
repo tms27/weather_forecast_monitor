@@ -161,46 +161,46 @@ class Wetter_com (Website):
 class Proplanta_de(Website):
 
     def retrieve_data(self):  # method of superclass needs to be overwritten because forecast is spread across multiple urls
-        self.url_memory = self.url
-        for self.url in self.url_memory:
+        url_memory = self.url
+        for self.url in url_memory:
             Website.retrieve_data(self)
-        self.url = self.url_memory
+        self.url = url_memory
 
     def retrieve_temperatures_str(self, soup):
-        self.rows = soup.find('tr', id='TMAX')
-        self.temp = self.rows.find_all(attrs={'class': 'SCHRIFT_FORMULAR_WERTE_MITTE'})
-        return [self.temperature.get_text() for self.temperature in self.temp]
+        rows = soup.find('tr', id='TMAX')
+        temp = rows.find_all(attrs={'class': 'SCHRIFT_FORMULAR_WERTE_MITTE'})
+        return [temperature.get_text() for temperature in temp]
 
     def retrieve_rain_chances_str(self, soup):
         # retrieve chance of rain during the  day
-        self.rows = soup.find('tr', id='NW')  # returns None if nothing found
-        if self.rows is None:
-            self.num_of_days = len(self.retrieve_temperatures_str(soup))  # determine number of forecasted days on website
-            return ['not given'] * self.num_of_days
-        self.temp = self.rows.find_all(attrs={'class': 'SCHRIFT_FORMULAR_WERTE_MITTE'})
-        self.rain_chances_day_str = [self.rain_chance.get_text() for self.rain_chance in self.temp]
+        rows = soup.find('tr', id='NW')  # returns None if nothing found
+        if rows is None:
+            num_of_days = len(self.retrieve_temperatures_str(soup))  # determine number of days forecasted by website
+            return ['not given'] * num_of_days
+        temp = rows.find_all(attrs={'class': 'SCHRIFT_FORMULAR_WERTE_MITTE'})
+        rain_chances_day_str = [rain_chance.get_text() for rain_chance in temp]
 
-        #retrieve chance of rain at night
-        self.rows = soup.find('tr', id='NW_Nacht')
-        self.temp = self.rows.find_all(attrs={'class': 'SCHRIFT_FORMULAR_WERTE_MITTE'})
-        self.rain_chances_night_str = [self.rain_chance.get_text() for self.rain_chance in self.temp]
+        # retrieve chance of rain at night
+        rows = soup.find('tr', id='NW_Nacht')
+        temp = rows.find_all(attrs={'class': 'SCHRIFT_FORMULAR_WERTE_MITTE'})
+        rain_chances_night_str = [rain_chance.get_text() for rain_chance in temp]
 
         # check if chance of rain at night or  day is higher and use the higher one for returned list
-        self.rain_chances = []
-        for self.rain_chance_day, self.rain_chance_night in zip(self.rain_chances_day_str, self.rain_chances_night_str):
-            if float(self.rain_chance_day[:-2]) > float(self.rain_chance_night[:-2]):
-                self.rain_chances.append(self.rain_chance_day)
+        rain_chances = []
+        for rain_chance_day, rain_chance_night in zip(rain_chances_day_str, rain_chances_night_str):
+            if float(rain_chance_day[:-2]) > float(rain_chance_night[:-2]):
+                rain_chances.append(rain_chance_day)
             else:
-                self.rain_chances.append(self.rain_chance_night)
-        return self.rain_chances
+                rain_chances.append(rain_chance_night)
+        return rain_chances
 
     def retrieve_rain_amounts_str(self, soup):
-        self.rows = soup.find('tr', id='NS_24H')  # returns None if nothing found
-        if self.rows is None:
-            self.num_of_days = len(self.retrieve_temperatures_str(soup))  # determine number of forecasted days on website
-            return ['not given'] * self.num_of_days
-        self.temp = self.rows.find_all(attrs={'class': 'SCHRIFT_FORMULAR_WERTE_MITTE'})
-        rain_amounts_str = [self.rain_amount.get_text().replace(',','.') for self.rain_amount in self.temp]
+        rows = soup.find('tr', id='NS_24H')  # returns None if nothing is found
+        if rows is None:
+            num_of_days = len(self.retrieve_temperatures_str(soup))  # determine number of forecasted days on website
+            return ['not given'] * num_of_days
+        temp = rows.find_all(attrs={'class': 'SCHRIFT_FORMULAR_WERTE_MITTE'})
+        rain_amounts_str = [rain_amount.get_text().replace(',', '.') for rain_amount in temp]
         return rain_amounts_str
 
 
