@@ -7,7 +7,8 @@ from datetime import date
 
 class WeatherCenter:
     @staticmethod
-    def retrieve_max_T_and_rain_amount(days_ago=None, day=None, month=None, year=None):
+    def retrieve_max_T_and_rain_amount(day=None, month=None, year=None, days_ago=None):
+        # method retrieves actual weather data from wetterzentrale.de of a certain date or a certain number of days ago
         if days_ago is None:
             url = f'https://www.wetterzentrale.de/weatherdata_de.php?station=3379' \
                   f'&jaar={year}&maand={month}&dag={day}'
