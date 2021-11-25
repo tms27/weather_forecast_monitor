@@ -14,7 +14,7 @@ class WeatherCenter:
                   f'&jaar={year}&maand={month}&dag={day}'
             target_date = date(year, month, day)
         else:
-            target_date = datetime.today() - timedelta(days=days_ago)
+            target_date = date.today() - timedelta(days=days_ago)
             url = f'https://www.wetterzentrale.de/weatherdata_de.php?station=3379' \
                   f'&jaar={target_date.year}&maand={target_date.month}&dag={target_date.day}'
         website = requests.get(url)
