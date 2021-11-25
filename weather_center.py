@@ -2,7 +2,6 @@ from bs4 import BeautifulSoup
 import requests
 from datetime import datetime
 from datetime import timedelta
-from datetime import date
 
 
 class WeatherCenter:
@@ -18,9 +17,10 @@ class WeatherCenter:
         self.soup = BeautifulSoup(self.website.content, 'html.parser')
         self.table = self.soup.find(attrs={'class': 'col-md-6'})
         self.bs = self.table.find_all('b')
-        self.max_T = float(self.bs[0].get_text())
-        self.rain_amount = float(self.bs[-3].get_text())
-
-
-
-        return self.max_T, self.rain_amount
+        try:
+            self.max_T = float(self.bs[0].get_text())
+            self.rain_amount = float(self.bs[-3].get_text())
+            return self.max_T, self.rain_amount
+        except ValueError:
+            print(f"Data from wetterzentrale.de for {self.date.day}/{self.date.month}/{self.date.year} not yet available")
+            return None, None

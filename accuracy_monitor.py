@@ -33,6 +33,8 @@ class AccuracyMonitor:
                 for self.i in range(self.days_elapsed-1, self.days_until_updated-1, -1):
                     self.date = self.today - timedelta(days=self.i)
                     self.new_data = list(self.weather_center.retrieve_max_T_and_rain_amount(days_ago=self.i))
+                    if None in self.new_data:
+                        break
                     self.new_row = [self.date.day, self.date.month, self.date.year, *self.new_data]
                     self.new_row_df = pd.DataFrame(data=[self.new_row], columns=self.column_names)
                     self.df = self.df.append(self.new_row_df, ignore_index=True)
