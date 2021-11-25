@@ -50,10 +50,8 @@ forecast_websites = [wetter_de, wetter_com, proplanta_de]
 #a = proplanta_de.retrieve_rain_amounts_str(soup)
 #print(a)
 weather_center = WeatherCenter()
-#max_T, rain_amount = weather_center.retrieve_max_T_and_rain_amount(day=9, month=1, year=2016)
-#print(max_T, rain_amount)
-#a = weather_center.retrieve_max_T_and_rain_amount(day=9, month=1, year=2016)
-#print(a)
+print(weather_center.retrieve_max_T_and_rain_amount(day=23, month=11, year=2021))
+
 wetter_com_monitor = AccuracyMonitor(wetter_com, 'wetter_com_acc_log.csv')
 a = wetter_com_monitor.avg_max_T_deviation(5, sequence=True, absolute_value=False, relative=False)
 print(a)
