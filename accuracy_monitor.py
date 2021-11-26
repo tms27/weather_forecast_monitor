@@ -61,7 +61,7 @@ class AccuracyMonitor:
             if row.empty:  # continue if actual value is not yet available
                 continue
             deviation = row_website.at[f"{quantity_name} {forecasted_day}"] - row.at[row.index[0], quantity_name]
-            if relative:
+            if relative & (deviation != 0):
                 try:
                     deviation /= row.at[row.index[0], quantity_name]
                 except RuntimeWarning:

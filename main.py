@@ -49,18 +49,18 @@ forecast_websites = [wetter_de, wetter_com, proplanta_de]
 #print(soup)
 #a = proplanta_de.retrieve_rain_amounts_str(soup)
 #print(a)
-print(AccuracyMonitor.retrieve_max_T_and_rain_amount(days_ago=5))
+#print(AccuracyMonitor.retrieve_max_T_and_rain_amount(days_ago=5))
 
 wetter_com_monitor = AccuracyMonitor(wetter_com, 'wetter_com_acc_log.csv')
-a = wetter_com_monitor.avg_max_T_deviation(5, sequence=True, absolute_value=False, relative=False)
+a = wetter_com_monitor.avg_max_T_deviation(1, sequence=True, absolute_value=False, relative=False)
 print(a)
-a = wetter_com_monitor.avg_rain_amount_deviation(5, sequence=2, absolute_value=True, relative=True)
+a = wetter_com_monitor.avg_rain_amount_deviation(1, sequence=2, absolute_value=True, relative=False)
 print(a)
 # retrieve weather forecast
-for website in forecast_websites:
+#for website in forecast_websites:
     #website.retrieve_temperatures()
     #print(website.temperatures_float)
-    website.update_csv_file()
+#    website.update_csv_file()
 
 
 
