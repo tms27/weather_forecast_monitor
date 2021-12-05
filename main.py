@@ -52,14 +52,29 @@ forecast_websites = [wetter_de, wetter_com, proplanta_de]
 #print(AccuracyMonitor.retrieve_max_T_and_rain_amount(days_ago=5))
 
 wetter_com_monitor = AccuracyMonitor(wetter_com, 'wetter_com_acc_log.csv')
-a = wetter_com_monitor.avg_max_T_deviation(1, sequence=True, absolute_value=False, relative=False)
-print(a)
-a = wetter_com_monitor.avg_rain_amount_deviation(1, sequence=2, absolute_value=True, relative=False)
-print(a)
+wetter_de_monitor = AccuracyMonitor(wetter_de, 'wetter_de_acc_log.csv')
+proplanta_de_monitor = AccuracyMonitor(proplanta_de, 'proplanta_de_acc_log.csv')
+accuracy_monitors = [wetter_de_monitor, wetter_com_monitor, proplanta_de_monitor]
+#a = wetter_com_monitor.avg_max_T_deviation(1, sequence=True, absolute_value=False, relative=False)
+#print(a)
+#a = wetter_com_monitor.avg_rain_amount_deviation(1, sequence=2, absolute_value=True, relative=False)
+#print(a)
+
+# plot course of average deviation of maximum temperature
+for monitor in accuracy_monitors:
+    avg_deviations = monitor.avg_max_T_deviation(1, sequence=True, absolute_value=False, relative=False)
+    print(avg_deviations)
+    print(len(avg_deviations))
+# plot deviation of maximum temperature
+
+# plot course of average deviation of rain amount
+
+# plot deviation of rain amount
+
+
+
 # retrieve weather forecast
 #for website in forecast_websites:
-    #website.retrieve_temperatures()
-    #print(website.temperatures_float)
 #    website.update_csv_file()
 
 

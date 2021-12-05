@@ -26,7 +26,7 @@ class AccuracyMonitor:
             self.df.to_csv(self.filename, index=False)
         else:
             self.df = pd.read_csv(self.filename)
-            last_date = date(self.df['Year'].max(), self.df['Month'].max(), self.df['Day'].max())
+            last_date = date(int(self.df.iloc[-1].at['Year']), int(self.df.iloc[-1].at['Month']), int(self.df.iloc[-1].at['Day']))
             time_difference = self.today - last_date
             days_elapsed = time_difference.days
             if int(days_elapsed) > self.days_until_updated:
