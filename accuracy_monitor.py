@@ -52,6 +52,7 @@ class AccuracyMonitor:
 
         # calculate deviations from actual value
         deviations = []
+        dates_forecasted = []
         for index, row_website in self.df_website.iterrows():
             date_of_forecast = date(row_website['Year'], self.month_str_to_int[row_website['Month']], row_website['Day'])
             date_forecasted = date_of_forecast + timedelta(days=forecasted_day)
@@ -60,6 +61,7 @@ class AccuracyMonitor:
                           & (self.df.Year == date_forecasted.year)]
             if row.empty:  # continue if actual value is not yet available
                 continue
+            dates_forecasted.append(date_forecasted)
             deviation = row_website.at[f"{quantity_name} {forecasted_day}"] - row.at[row.index[0], quantity_name]
             if relative & (deviation != 0):
                 try:
@@ -81,9 +83,9 @@ class AccuracyMonitor:
             for i in range(1, len(deviations)+1):
                 avg_seq.append(sum(deviations[:i]) / i)
             if (sequence in range(1, len(deviations)+1)) & sequence is not True:
-                return avg_seq[-1 * sequence:]
+                return avg_seq[-1 * sequence:], dates_forecasted[-1 * sequence:]
             else:
-                return avg_seq
+                return avg_seq, dates_forecasted
 
     @staticmethod
     def retrieve_max_T_and_rain_amount(day=None, month=None, year=None, days_ago=None):

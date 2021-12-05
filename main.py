@@ -2,6 +2,10 @@ from datetime import datetime
 from website_classes import *
 from weather_center import WeatherCenter
 from accuracy_monitor import AccuracyMonitor
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+import math
+
 def weekdaylist_from_current_weekday(length_of_list = 7):
     weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     current_weekday = datetime.today().weekday()
@@ -54,7 +58,7 @@ forecast_websites = [wetter_de, wetter_com, proplanta_de]
 wetter_com_monitor = AccuracyMonitor(wetter_com, 'wetter_com_acc_log.csv')
 wetter_de_monitor = AccuracyMonitor(wetter_de, 'wetter_de_acc_log.csv')
 proplanta_de_monitor = AccuracyMonitor(proplanta_de, 'proplanta_de_acc_log.csv')
-accuracy_monitors = [wetter_de_monitor, wetter_com_monitor, proplanta_de_monitor]
+accuracy_monitors = [wetter_de_monitor]#, wetter_com_monitor, proplanta_de_monitor]
 #a = wetter_com_monitor.avg_max_T_deviation(1, sequence=True, absolute_value=False, relative=False)
 #print(a)
 #a = wetter_com_monitor.avg_rain_amount_deviation(1, sequence=2, absolute_value=True, relative=False)
@@ -62,9 +66,16 @@ accuracy_monitors = [wetter_de_monitor, wetter_com_monitor, proplanta_de_monitor
 
 # plot course of average deviation of maximum temperature
 for monitor in accuracy_monitors:
-    avg_deviations = monitor.avg_max_T_deviation(1, sequence=True, absolute_value=False, relative=False)
-    print(avg_deviations)
-    print(len(avg_deviations))
+    avg_deviations, dates_forecasted = monitor.avg_max_T_deviation(1, sequence=True, absolute_value=True, relative=False)
+    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%m/%d/%Y'))
+    plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=math.ceil(len(dates_forecasted)/7)))
+    plt.plot(dates_forecasted, avg_deviations)
+    print(avg_deviations, dates_forecasted)
+    plt.gcf().autofmt_xdate()
+    plt.show()
+
+#    print(avg_deviations)
+#    print(dates_forecasted)
 # plot deviation of maximum temperature
 
 # plot course of average deviation of rain amount
