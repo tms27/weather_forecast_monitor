@@ -67,34 +67,40 @@ accuracy_monitors = [wetter_de_monitor, wetter_com_monitor, proplanta_de_monitor
 #print(a)
 
 # plot course of average deviation of maximum temperature
-'''
+
 fig1, ax1 = plt.subplots()
-plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%m/%d/%Y'))
+ax1.xaxis.set_major_formatter(mdates.DateFormatter('%m/%d/%Y'))
 for monitor in accuracy_monitors:
-    avg_deviations, dates_forecasted = monitor.avg_max_T_deviation(1, sequence=True, absolute_value=True, relative=False)
+    avg_deviations, dates_forecasted = monitor.avg_max_T_deviation(5, sequence=True, absolute_value=True, relative=False)
     plt.plot(dates_forecasted, avg_deviations, label=monitor.name)
-plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=math.ceil(len(dates_forecasted) / 7)))
-plt.gcf().autofmt_xdate()
+ax1.xaxis.set_major_locator(mdates.DayLocator(interval=math.ceil(len(dates_forecasted) / 7)))
+fig1.autofmt_xdate()
 plt.ylabel('average absolute deviation in °C')
 plt.title('Accuracy of T$_{\mathrm{max}}$ projection five days in advance ')
-plt.gca().legend()
+ax1.legend()
 
 
 # plot deviation of maximum temperature
+# todo doublecheck if values in plot are correct
 fig2, ax2 = plt.subplots()
-plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%m/%d/%Y'))
+ax2.xaxis.set_major_formatter(mdates.DateFormatter('%m/%d/%Y'))
 for monitor in accuracy_monitors:
-    avg_deviations, dates_forecasted = monitor.avg_max_T_deviation(1, sequence=True, absolute_value=True, relative=False)
-    plt.plot(dates_forecasted, avg_deviations, label=monitor.name)
-plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=math.ceil(len(dates_forecasted) / 7)))
-plt.gcf().autofmt_xdate()
-plt.ylabel('average absolute deviation in °C')
-plt.title('Accuracy of T$_{\mathrm{max}}$ projection five days in advance ')
-plt.gca().legend()
+    deviations, dates_forecasted = monitor.deviations("max Temp.", forecasted_day=1, absolute_value=False, relative=False)
+    actual_values = monitor.actual_values("max Temp.", dates_forecasted)
+    forecasted_values = [x + y for x, y in zip(actual_values, deviations)]
+    plt.plot(dates_forecasted, forecasted_values, '--', label=monitor.name)
+plt.plot(dates_forecasted, actual_values, label="actual values")
+ax2.xaxis.set_major_locator(mdates.DayLocator(interval=math.ceil(len(dates_forecasted) / 7)))
+fig2.autofmt_xdate()
+plt.ylabel('Temperature in °C')
+plt.title('Projection of maximum temperature vs actual value')
+handles, labels = ax2.get_legend_handles_labels()
+ax2.legend([handles[-1], *handles[:-1]], [labels[-1], *labels[:-1]])
 plt.show()
-'''
-temp, dates = wetter_com_monitor.deviation('max Temp.')
-print(wetter_com_monitor.actual_values('max Temp.', dates))
+
+
+# todo plot wich shows days in advance on x-axis and average deviation of temperature on y-axis
+
 
 # plot course of average deviation of rain amount
 

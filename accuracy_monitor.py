@@ -52,7 +52,7 @@ class AccuracyMonitor:
             raise ValueError(f"Quantity is not forecasted by the website on day {forecasted_day}")
 
         # calculate deviations from actual value
-        deviations, dates_forecasted = self.deviation(quantity_name, forecasted_day, absolute_value, relative)
+        deviations, dates_forecasted = self.deviations(quantity_name, forecasted_day, absolute_value, relative)
         #print(deviations)
         #calculate average deviation
         if sequence is False:
@@ -66,7 +66,7 @@ class AccuracyMonitor:
             else:
                 return avg_seq, dates_forecasted
 
-    def deviation(self, quantity_name, forecasted_day=3, absolute_value=True, relative=False):
+    def deviations(self, quantity_name, forecasted_day=3, absolute_value=True, relative=False):
         # calculates deviation of forecasted values from actual value
         deviations = []
         dates_forecasted = []
