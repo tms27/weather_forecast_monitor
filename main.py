@@ -67,6 +67,7 @@ accuracy_monitors = [wetter_de_monitor, wetter_com_monitor, proplanta_de_monitor
 #print(a)
 
 # plot course of average deviation of maximum temperature
+'''
 fig1, ax1 = plt.subplots()
 plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%m/%d/%Y'))
 for monitor in accuracy_monitors:
@@ -80,7 +81,6 @@ plt.gca().legend()
 
 
 # plot deviation of maximum temperature
-'''
 fig2, ax2 = plt.subplots()
 plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%m/%d/%Y'))
 for monitor in accuracy_monitors:
@@ -91,10 +91,10 @@ plt.gcf().autofmt_xdate()
 plt.ylabel('average absolute deviation in °C')
 plt.title('Accuracy of T$_{\mathrm{max}}$ projection five days in advance ')
 plt.gca().legend()
-'''
 plt.show()
-
-
+'''
+temp, dates = wetter_com_monitor.deviation('max Temp.')
+print(wetter_com_monitor.actual_values('max Temp.', dates))
 
 # plot course of average deviation of rain amount
 

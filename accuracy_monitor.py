@@ -93,6 +93,14 @@ class AccuracyMonitor:
             deviations.append(deviation)
         return deviations, dates_forecasted
 
+    def actual_values(self, quantity_name, dates):
+        actual_values = []
+        for day in dates:
+            row = self.df[(self.df.Day == day.day)
+                          & (self.df.Month == day.month)
+                          & (self.df.Year == day.year)]
+            actual_values.append(row.at[row.index[0], quantity_name])
+        return actual_values
 
     @staticmethod
     def retrieve_max_T_and_rain_amount(day=None, month=None, year=None, days_ago=None):
