@@ -80,6 +80,7 @@ plt.gca().legend()
 
 
 # plot deviation of maximum temperature
+'''
 fig2, ax2 = plt.subplots()
 plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%m/%d/%Y'))
 for monitor in accuracy_monitors:
@@ -90,6 +91,7 @@ plt.gcf().autofmt_xdate()
 plt.ylabel('average absolute deviation in °C')
 plt.title('Accuracy of T$_{\mathrm{max}}$ projection five days in advance ')
 plt.gca().legend()
+'''
 plt.show()
 
 

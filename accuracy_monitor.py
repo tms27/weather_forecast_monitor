@@ -52,6 +52,22 @@ class AccuracyMonitor:
             raise ValueError(f"Quantity is not forecasted by the website on day {forecasted_day}")
 
         # calculate deviations from actual value
+        deviations, dates_forecasted = self.deviation(quantity_name, forecasted_day, absolute_value, relative)
+        #print(deviations)
+        #calculate average deviation
+        if sequence is False:
+            return sum(deviations) / len(deviations)
+        else:
+            avg_seq = []
+            for i in range(1, len(deviations)+1):
+                avg_seq.append(sum(deviations[:i]) / i)
+            if (sequence in range(1, len(deviations)+1)) & sequence is not True:
+                return avg_seq[-1 * sequence:], dates_forecasted[-1 * sequence:]
+            else:
+                return avg_seq, dates_forecasted
+
+    def deviation(self, quantity_name, forecasted_day=3, absolute_value=True, relative=False):
+        # calculates deviation of forecasted values from actual value
         deviations = []
         dates_forecasted = []
         for index, row_website in self.df_website.iterrows():
@@ -75,18 +91,8 @@ class AccuracyMonitor:
             if absolute_value:
                 deviation = abs(deviation)
             deviations.append(deviation)
+        return deviations, dates_forecasted
 
-        # calculate average deviation
-        if sequence is False:
-            return sum(deviations) / len(deviations)
-        else:
-            avg_seq = []
-            for i in range(1, len(deviations)+1):
-                avg_seq.append(sum(deviations[:i]) / i)
-            if (sequence in range(1, len(deviations)+1)) & sequence is not True:
-                return avg_seq[-1 * sequence:], dates_forecasted[-1 * sequence:]
-            else:
-                return avg_seq, dates_forecasted
 
     @staticmethod
     def retrieve_max_T_and_rain_amount(day=None, month=None, year=None, days_ago=None):
