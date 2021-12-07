@@ -9,7 +9,8 @@ warnings.filterwarnings("error")
 
 
 class AccuracyMonitor:
-    def __init__(self, website, filename):
+    def __init__(self, website, name, filename):
+        self.name = name
         self.filename = filename
         self.df_website = website.data()
         self.today = date.today()

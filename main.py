@@ -27,6 +27,8 @@ def DataFrame_column_descriptions(num_of_days):
     column_names.extend(temperature_columns)
     return column_names
 
+
+
 # Create objects of websites from which the weather forecasts are retrieved
 wetter_de = Wetter_de(url='https://www.wetter.de/deutschland/wetter-muenchen-18225562.html?q=m%C3%BCnchen',
                       forecasted_days=14,
@@ -55,28 +57,42 @@ forecast_websites = [wetter_de, wetter_com, proplanta_de]
 #print(a)
 #print(AccuracyMonitor.retrieve_max_T_and_rain_amount(days_ago=5))
 
-wetter_com_monitor = AccuracyMonitor(wetter_com, 'wetter_com_acc_log.csv')
-wetter_de_monitor = AccuracyMonitor(wetter_de, 'wetter_de_acc_log.csv')
-proplanta_de_monitor = AccuracyMonitor(proplanta_de, 'proplanta_de_acc_log.csv')
-accuracy_monitors = [wetter_de_monitor]#, wetter_com_monitor, proplanta_de_monitor]
+wetter_com_monitor = AccuracyMonitor(wetter_com, 'wetter.com', 'wetter_com_acc_log.csv')
+wetter_de_monitor = AccuracyMonitor(wetter_de, 'wetter.de', 'wetter_de_acc_log.csv')
+proplanta_de_monitor = AccuracyMonitor(proplanta_de, 'proplanta.de', 'proplanta_de_acc_log.csv')
+accuracy_monitors = [wetter_de_monitor, wetter_com_monitor, proplanta_de_monitor]
 #a = wetter_com_monitor.avg_max_T_deviation(1, sequence=True, absolute_value=False, relative=False)
 #print(a)
 #a = wetter_com_monitor.avg_rain_amount_deviation(1, sequence=2, absolute_value=True, relative=False)
 #print(a)
 
 # plot course of average deviation of maximum temperature
+fig1, ax1 = plt.subplots()
+plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%m/%d/%Y'))
 for monitor in accuracy_monitors:
     avg_deviations, dates_forecasted = monitor.avg_max_T_deviation(1, sequence=True, absolute_value=True, relative=False)
-    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%m/%d/%Y'))
-    plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=math.ceil(len(dates_forecasted)/7)))
-    plt.plot(dates_forecasted, avg_deviations)
-    print(avg_deviations, dates_forecasted)
-    plt.gcf().autofmt_xdate()
-    plt.show()
+    plt.plot(dates_forecasted, avg_deviations, label=monitor.name)
+plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=math.ceil(len(dates_forecasted) / 7)))
+plt.gcf().autofmt_xdate()
+plt.ylabel('average absolute deviation in °C')
+plt.title('Accuracy of T$_{\mathrm{max}}$ projection five days in advance ')
+plt.gca().legend()
 
-#    print(avg_deviations)
-#    print(dates_forecasted)
+
 # plot deviation of maximum temperature
+fig2, ax2 = plt.subplots()
+plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%m/%d/%Y'))
+for monitor in accuracy_monitors:
+    avg_deviations, dates_forecasted = monitor.avg_max_T_deviation(1, sequence=True, absolute_value=True, relative=False)
+    plt.plot(dates_forecasted, avg_deviations, label=monitor.name)
+plt.gca().xaxis.set_major_locator(mdates.DayLocator(interval=math.ceil(len(dates_forecasted) / 7)))
+plt.gcf().autofmt_xdate()
+plt.ylabel('average absolute deviation in °C')
+plt.title('Accuracy of T$_{\mathrm{max}}$ projection five days in advance ')
+plt.gca().legend()
+plt.show()
+
+
 
 # plot course of average deviation of rain amount
 
