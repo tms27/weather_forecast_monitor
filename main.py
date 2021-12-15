@@ -4,6 +4,7 @@ from weather_center import WeatherCenter
 from accuracy_monitor import AccuracyMonitor
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+import matplotlib.ticker as ticker
 import math
 
 def weekdaylist_from_current_weekday(length_of_list = 7):
@@ -66,51 +67,108 @@ accuracy_monitors = [wetter_de_monitor, wetter_com_monitor, proplanta_de_monitor
 #a = wetter_com_monitor.avg_rain_amount_deviation(1, sequence=2, absolute_value=True, relative=False)
 #print(a)
 
-# plot course of average deviation of maximum temperature
 
+# retrieve weather forecast
+#for website in forecast_websites:
+#    website.update_csv_file()
+
+plt.style.use('seaborn-colorblind')
+
+# plot course of average deviation of maximum temperature
 fig1, ax1 = plt.subplots()
 ax1.xaxis.set_major_formatter(mdates.DateFormatter('%m/%d/%Y'))
 for monitor in accuracy_monitors:
     avg_deviations, dates_forecasted = monitor.avg_max_T_deviation(5, sequence=True, absolute_value=True, relative=False)
-    plt.plot(dates_forecasted, avg_deviations, label=monitor.name)
+    ax1.plot(dates_forecasted, avg_deviations, label=monitor.name)
 ax1.xaxis.set_major_locator(mdates.DayLocator(interval=math.ceil(len(dates_forecasted) / 7)))
 fig1.autofmt_xdate()
-plt.ylabel('average absolute deviation in °C')
-plt.title('Accuracy of T$_{\mathrm{max}}$ projection five days in advance ')
+ax1.set_ylabel('average absolute deviation in °C')
+ax1.set_title('Accuracy of T$_{\mathrm{max}}$ projection five days in advance ')
 ax1.legend()
 
 
-# plot deviation of maximum temperature
-# todo doublecheck if values in plot are correct
+# plot deviation of maximum temperature from real value
 fig2, ax2 = plt.subplots()
 ax2.xaxis.set_major_formatter(mdates.DateFormatter('%m/%d/%Y'))
 for monitor in accuracy_monitors:
     deviations, dates_forecasted = monitor.deviations("max Temp.", forecasted_day=1, absolute_value=False, relative=False)
     actual_values = monitor.actual_values("max Temp.", dates_forecasted)
     forecasted_values = [x + y for x, y in zip(actual_values, deviations)]
-    plt.plot(dates_forecasted, forecasted_values, '--', label=monitor.name)
-plt.plot(dates_forecasted, actual_values, label="actual values")
+    ax2.plot(dates_forecasted, forecasted_values, '--', label=monitor.name)
+ax2.plot(dates_forecasted, actual_values, label="actual values")
 ax2.xaxis.set_major_locator(mdates.DayLocator(interval=math.ceil(len(dates_forecasted) / 7)))
 fig2.autofmt_xdate()
-plt.ylabel('Temperature in °C')
-plt.title('Projection of maximum temperature vs actual value')
+ax2.set_ylabel('T in °C')
+ax2.set_title('Projection of  T$_{\mathrm{max}}$ the next day vs actual value')
 handles, labels = ax2.get_legend_handles_labels()
 ax2.legend([handles[-1], *handles[:-1]], [labels[-1], *labels[:-1]])
+
+# plot average deviation of maximum temperature dependent on days in advance
+fig3, ax3 = plt.subplots()
+range_forecasted_days = range(1, 14)
+for monitor in accuracy_monitors:
+    avg_deviations = []
+    for forecasted_day in range_forecasted_days:
+        avg_deviation = monitor.avg_max_T_deviation(forecasted_day, sequence=False, absolute_value=True, relative=False)
+        avg_deviations.append(avg_deviation)
+    ax3.plot(range_forecasted_days, avg_deviations, label=monitor.name)
+ax3.xaxis.set_major_locator(ticker.MultipleLocator(1))
+ax3.set_ylabel('Average deviation from T$_{\mathrm{max, real}}$ in °C')
+ax3.set_xlabel('Number of days ahead')
+ax3.set_title('Accuracy of T$_{\mathrm{max}}$ projection')
+ax3.legend()
+ax3.set_ylim(0)
 plt.show()
 
 
-# todo plot wich shows days in advance on x-axis and average deviation of temperature on y-axis
+accuracy_monitors = [wetter_com_monitor, proplanta_de_monitor]
+# plot course of average deviation of amount of rain
+fig4, ax4 = plt.subplots()
+ax4.xaxis.set_major_formatter(mdates.DateFormatter('%m/%d/%Y'))
+for monitor in accuracy_monitors:
+    avg_deviations, dates_forecasted = monitor.avg_rain_amount_deviation(5, sequence=True, absolute_value=True, relative=False)
+    ax4.plot(dates_forecasted, avg_deviations, label=monitor.name)
+ax4.xaxis.set_major_locator(mdates.DayLocator(interval=math.ceil(len(dates_forecasted) / 7)))
+fig4.autofmt_xdate()
+ax4.set_ylabel('Average absolute deviation in l/m$^{2}$')
+ax4.set_title('Accuracy of amount of rain projection five days in advance ')
+ax4.legend()
+
+# plot projection of amount of rain the next day vs actual value
+fig5, ax5 = plt.subplots()
+ax5.xaxis.set_major_formatter(mdates.DateFormatter('%m/%d/%Y'))
+for monitor in accuracy_monitors:
+    deviations, dates_forecasted = monitor.deviations("Amount of Rain", forecasted_day=1, absolute_value=False, relative=False)
+    actual_values = monitor.actual_values("Amount of Rain", dates_forecasted)
+    forecasted_values = [x + y for x, y in zip(actual_values, deviations)]
+    ax5.plot(dates_forecasted, forecasted_values, '--', label=monitor.name)
+ax5.plot(dates_forecasted, actual_values, label="actual values")
+ax5.xaxis.set_major_locator(mdates.DayLocator(interval=math.ceil(len(dates_forecasted) / 7)))
+fig5.autofmt_xdate()
+ax5.set_ylabel('Amount of rain in l/m$^{2}$')
+ax5.set_title('Projection of amount of rain the next day vs actual value')
+handles, labels = ax5.get_legend_handles_labels()
+ax5.legend([handles[-1], *handles[:-1]], [labels[-1], *labels[:-1]])
+
+# plot average deviation of amount of rain dependent on days in advance
+fig6, ax6 = plt.subplots()
+range_forecasted_days = range(1, 7)
+for monitor in accuracy_monitors:
+    avg_deviations = []
+    for forecasted_day in range_forecasted_days:
+        avg_deviation = monitor.avg_rain_amount_deviation(forecasted_day, sequence=False, absolute_value=True, relative=False)
+        avg_deviations.append(avg_deviation)
+    ax6.plot(range_forecasted_days, avg_deviations, label=monitor.name)
+ax6.xaxis.set_major_locator(ticker.MultipleLocator(1))
+ax6.set_ylabel('Average deviation from real amount of rain in l/m$^{2}$')
+ax6.set_xlabel('Number of days ahead')
+ax6.set_title('Accuracy of amount of rain projection')
+ax6.legend()
+ax6.set_ylim(0)
 
 
-# plot course of average deviation of rain amount
-
-# plot deviation of rain amount
 
 
-
-# retrieve weather forecast
-#for website in forecast_websites:
-#    website.update_csv_file()
 
 
 
