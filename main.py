@@ -7,6 +7,10 @@ import matplotlib.dates as mdates
 import matplotlib.ticker as ticker
 import math
 
+
+#todo dictionary with links to websites
+
+
 def weekdaylist_from_current_weekday(length_of_list = 7):
     weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     current_weekday = datetime.today().weekday()
@@ -69,8 +73,8 @@ accuracy_monitors = [wetter_de_monitor, wetter_com_monitor, proplanta_de_monitor
 
 
 # retrieve weather forecast
-#for website in forecast_websites:
-#    website.update_csv_file()
+for website in forecast_websites:
+    website.update_csv_file()
 
 plt.style.use('seaborn-colorblind')
 
