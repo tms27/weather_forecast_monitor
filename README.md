@@ -1,6 +1,6 @@
 # Accuracy Monitor for Weather Forecast
 
-The Python code provided in this repository can be used to assess the accuracy of the weather forecast from the three websites wetter.de, wetter.com and proplanta.de.
+The Python code provided in this repository can be used to assess the accuracy of the weather forecast from the three websites wetter.de, wetter.com and proplanta.de. Exemplary data and plots that can be created using this code are provided in the folders *data_examples* and *plot_examples*.
 
 ## Features
 - retrieving and storing temperature, likelihood of rain and amount of rain forecasted by the three websites  
