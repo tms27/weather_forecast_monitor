@@ -9,7 +9,15 @@ import math
 
 
 #todo dictionary with links to websites
-
+links = {
+    'wetter.de': 'https://www.wetter.de/deutschland/wetter-muenchen-18225562.html?q=m%C3%BCnchen',
+    'wetter.com': 'https://www.wetter.com/wetter_aktuell/wettervorhersage/16_tagesvorhersage/deutschland/muenchen/DE0006515.html',
+    'proplanta.de day 1-4': 'https://www.proplanta.de/Agrar-Wetter/M%FCnchen-AgrarWetter.html',
+    'proplanta.de day 5-7': 'https://www.proplanta.de/Agrar-Wetter/profi-wetter.php?SITEID=60&PLZ=M%FCnchen&STADT=M%FCnchen&WETTERaufrufen=stadt&Wtp=&SUCHE=Agrarwetter&wT=4',
+    'proplanta.de day 8-11': 'https://www.proplanta.de/Agrar-Wetter/profi-wetter.php?SITEID=60&PLZ=M%FCnchen&STADT=M%FCnchen&WETTERaufrufen=stadt&Wtp=&SUCHE=Agrarwetter&wT=7',
+    'proplanta.de day 12-14': 'https://www.proplanta.de/Agrar-Wetter/profi-wetter.php?SITEID=60&PLZ=M%FCnchen&STADT=M%FCnchen&WETTERaufrufen=stadt&Wtp=&SUCHE=Agrarwetter&wT=11',
+    'wetterzentrale.de': 'https://www.wetterzentrale.de/weatherdata_de.php?station=3379'
+}
 
 def weekdaylist_from_current_weekday(length_of_list = 7):
     weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
