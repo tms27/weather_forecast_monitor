@@ -50,13 +50,13 @@ class Website:
                 self.rain_amounts_float.append(float(re.findall('\d\d.\d|\d.\d|\d', rain_amount_str)[0]))
 
     def retrieve_temperatures_str(self, soup):
-        pass  # is defined individually for every website due to differences in the structures of the websites
+        pass  # is defined individually for each website due to differences in the structures of the websites
 
     def retrieve_rain_chances_str(self, soup):
-        pass  # is defined individually for every website due to differences in the structures of the websites
+        pass  # is defined individually for each website due to differences in the structures of the websites
 
     def retrieve_rain_amounts_str(self, soup):
-        pass  # is defined individually for every website due to differences in the structures of the websites
+        pass  # is defined individually for each website due to differences in the structures of the websites
 
     def update_csv_file(self):
         # retrieve date
@@ -89,7 +89,9 @@ class Website:
             df.to_csv(self.data_filename, index=False)
 
     def data(self):
+        # return logged weather forecasts
         return pd.read_csv(self.data_filename)
+
 
 class Wetter_de (Website):
 
@@ -120,6 +122,7 @@ class Wetter_de (Website):
 
     def retrieve_rain_amounts_str(self, soup):
         return ["not given"] * self.forecasted_days
+
 
 class Wetter_com (Website):
 
@@ -158,6 +161,7 @@ class Wetter_com (Website):
         self.real_feels_float = [float(real_feel_str[:-1]) for real_feel_str in real_feels_str]
         return self.real_feels_float
 
+
 class Proplanta_de(Website):
 
     def retrieve_data(self):  # method of superclass needs to be overwritten because forecast is spread across multiple urls
@@ -185,7 +189,7 @@ class Proplanta_de(Website):
         temp = rows.find_all(attrs={'class': 'SCHRIFT_FORMULAR_WERTE_MITTE'})
         rain_chances_night_str = [rain_chance.get_text() for rain_chance in temp]
 
-        # check if chance of rain at night or  day is higher and use the higher one for returned list
+        # check if chance of rain at night or day is higher and use the higher one for returned list
         rain_chances = []
         for rain_chance_day, rain_chance_night in zip(rain_chances_day_str, rain_chances_night_str):
             if float(rain_chance_day[:-2]) > float(rain_chance_night[:-2]):
@@ -202,5 +206,3 @@ class Proplanta_de(Website):
         temp = rows.find_all(attrs={'class': 'SCHRIFT_FORMULAR_WERTE_MITTE'})
         rain_amounts_str = [rain_amount.get_text().replace(',', '.') for rain_amount in temp]
         return rain_amounts_str
-
-

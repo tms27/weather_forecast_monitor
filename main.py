@@ -1,12 +1,9 @@
-from datetime import datetime
-from website_classes import *
-from weather_center import WeatherCenter
-from accuracy_monitor import AccuracyMonitor
+import math
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.ticker as ticker
-import math
-
+from website_classes import *
+from accuracy_monitor import AccuracyMonitor
 
 links = {
     'wetter.de': 'https://www.wetter.de/deutschland/wetter-muenchen-18225562.html?q=m%C3%BCnchen',
@@ -18,39 +15,15 @@ links = {
     'wetterzentrale.de': 'https://www.wetterzentrale.de/weatherdata_de.php?station=3379'
 }
 
-def weekdaylist_from_current_weekday(length_of_list = 7):
-    weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-    current_weekday = datetime.today().weekday()
-    weekdays_ordered = weekdays[current_weekday:]  # start list of weekdays from current weekday
-    weekdays_ordered.extend(weekdays[:current_weekday])
-    weekdays_from_today = []
-    j = 0
-    for i in range(length_of_list):
-        weekdays_from_today.append(weekdays_ordered[j])
-        if j == 6:
-            j = 0
-        else:
-            j += 1
-    return weekdays_from_today
-
-def DataFrame_column_descriptions(num_of_days):
-    column_names = ['Day', 'Month', 'Year']
-    temperature_columns = ['max Temp. ' + str(i) for i in range(num_of_days)]
-    column_names.extend(temperature_columns)
-    return column_names
-
-
 
 # Create objects of websites from which the weather forecasts are retrieved
 wetter_de = Wetter_de(url=links['wetter.de'],
                       forecasted_days=14,
                       data_filename='wetter_de.csv')
 
-
 wetter_com = Wetter_com(url=links['wetter.com'],
                         forecasted_days=16,
                         data_filename='wetter_com.csv')
-
 
 proplanta_de = Proplanta_de(url=[links['proplanta.de day 1-4'],
                                  links['proplanta.de day 5-7'],
@@ -60,29 +33,19 @@ proplanta_de = Proplanta_de(url=[links['proplanta.de day 1-4'],
                             data_filename='proplanta_de.csv')
 
 forecast_websites = [wetter_de, wetter_com, proplanta_de]
-#forecast_websites = [proplanta_de]
-#website = requests.get('https://www.proplanta.de/Agrar-Wetter/M%FCnchen-AgrarWetter.html')
-#soup = BeautifulSoup(website.content, 'html.parser')
-#print(proplanta_de.retrieve_rain_chances_str(soup))
-#print(soup)
-#a = proplanta_de.retrieve_rain_amounts_str(soup)
-#print(a)
-#print(AccuracyMonitor.retrieve_max_T_and_rain_amount(days_ago=5))
 
+# create a monitor object for each website
 wetter_com_monitor = AccuracyMonitor(wetter_com, 'wetter.com', 'wetter_com_acc_log.csv', links['wetterzentrale.de'])
 wetter_de_monitor = AccuracyMonitor(wetter_de, 'wetter.de', 'wetter_de_acc_log.csv', links['wetterzentrale.de'])
 proplanta_de_monitor = AccuracyMonitor(proplanta_de, 'proplanta.de', 'proplanta_de_acc_log.csv', links['wetterzentrale.de'])
 accuracy_monitors = [wetter_de_monitor, wetter_com_monitor, proplanta_de_monitor]
-#a = wetter_com_monitor.avg_max_T_deviation(1, sequence=True, absolute_value=False, relative=False)
-#print(a)
-#a = wetter_com_monitor.avg_rain_amount_deviation(1, sequence=2, absolute_value=True, relative=False)
-#print(a)
-
 
 # retrieve weather forecast
 for website in forecast_websites:
     website.update_csv_file()
 
+
+# set plotting style
 plt.style.use('seaborn-colorblind')
 
 # plot course of average deviation of maximum temperature
@@ -96,7 +59,6 @@ fig1.autofmt_xdate()
 ax1.set_ylabel('average absolute deviation in °C')
 ax1.set_title('Accuracy of T$_{\mathrm{max}}$ projection five days in advance ')
 ax1.legend()
-
 
 # plot deviation of maximum temperature from real value
 fig2, ax2 = plt.subplots()
@@ -176,12 +138,3 @@ ax6.set_xlabel('Number of days ahead')
 ax6.set_title('Accuracy of amount of rain projection')
 ax6.legend()
 ax6.set_ylim(0)
-
-
-
-
-
-
-
-
-

@@ -52,10 +52,10 @@ class AccuracyMonitor:
         if 'not given' in set(self.df_website[f"{quantity_name} {forecasted_day}"]):
             raise ValueError(f"Quantity is not forecasted by the website on day {forecasted_day}")
 
-        # calculate deviations from actual value
+        # retrieve deviations from actual value
         deviations, dates_forecasted = self.deviations(quantity_name, forecasted_day, absolute_value, relative)
-        #print(deviations)
-        #calculate average deviation
+
+        # calculate average deviation
         if sequence is False:
             return sum(deviations) / len(deviations)
         else:
@@ -95,6 +95,7 @@ class AccuracyMonitor:
         return deviations, dates_forecasted
 
     def actual_values(self, quantity_name, dates):
+        # retrieve and return actual values of specified quantity
         actual_values = []
         for day in dates:
             row = self.df[(self.df.Day == day.day)
@@ -104,7 +105,7 @@ class AccuracyMonitor:
         return actual_values
 
     def retrieve_max_T_and_rain_amount(self, day=None, month=None, year=None, days_ago=None):
-        # method retrieves actual weather data from wetterzentrale.de of a certain date or a certain number of days ago
+        # retrieve and return actual weather data from wetterzentrale.de of a certain date or a certain number of days ago
         if days_ago is None:
             url = f'{self.url_database}&jaar={year}&maand={month}&dag={day}'
             target_date = date(year, month, day)
