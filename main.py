@@ -8,7 +8,6 @@ import matplotlib.ticker as ticker
 import math
 
 
-#todo dictionary with links to websites
 links = {
     'wetter.de': 'https://www.wetter.de/deutschland/wetter-muenchen-18225562.html?q=m%C3%BCnchen',
     'wetter.com': 'https://www.wetter.com/wetter_aktuell/wettervorhersage/16_tagesvorhersage/deutschland/muenchen/DE0006515.html',
@@ -43,20 +42,20 @@ def DataFrame_column_descriptions(num_of_days):
 
 
 # Create objects of websites from which the weather forecasts are retrieved
-wetter_de = Wetter_de(url='https://www.wetter.de/deutschland/wetter-muenchen-18225562.html?q=m%C3%BCnchen',
+wetter_de = Wetter_de(url=links['wetter.de'],
                       forecasted_days=14,
                       data_filename='wetter_de.csv')
 
 
-wetter_com = Wetter_com(url='https://www.wetter.com/wetter_aktuell/wettervorhersage/16_tagesvorhersage/deutschland/muenchen/DE0006515.html',
+wetter_com = Wetter_com(url=links['wetter.com'],
                         forecasted_days=16,
                         data_filename='wetter_com.csv')
 
 
-proplanta_de = Proplanta_de(url=['https://www.proplanta.de/Agrar-Wetter/M%FCnchen-AgrarWetter.html',
-                               'https://www.proplanta.de/Agrar-Wetter/profi-wetter.php?SITEID=60&PLZ=M%FCnchen&STADT=M%FCnchen&WETTERaufrufen=stadt&Wtp=&SUCHE=Agrarwetter&wT=4',
-                               'https://www.proplanta.de/Agrar-Wetter/profi-wetter.php?SITEID=60&PLZ=M%FCnchen&STADT=M%FCnchen&WETTERaufrufen=stadt&Wtp=&SUCHE=Agrarwetter&wT=7',
-                               'https://www.proplanta.de/Agrar-Wetter/profi-wetter.php?SITEID=60&PLZ=M%FCnchen&STADT=M%FCnchen&WETTERaufrufen=stadt&Wtp=&SUCHE=Agrarwetter&wT=11'],
+proplanta_de = Proplanta_de(url=[links['proplanta.de day 1-4'],
+                                 links['proplanta.de day 5-7'],
+                                 links['proplanta.de day 8-11'],
+                                 links['proplanta.de day 12-14']],
                             forecasted_days=14,
                             data_filename='proplanta_de.csv')
 
@@ -70,9 +69,9 @@ forecast_websites = [wetter_de, wetter_com, proplanta_de]
 #print(a)
 #print(AccuracyMonitor.retrieve_max_T_and_rain_amount(days_ago=5))
 
-wetter_com_monitor = AccuracyMonitor(wetter_com, 'wetter.com', 'wetter_com_acc_log.csv')
-wetter_de_monitor = AccuracyMonitor(wetter_de, 'wetter.de', 'wetter_de_acc_log.csv')
-proplanta_de_monitor = AccuracyMonitor(proplanta_de, 'proplanta.de', 'proplanta_de_acc_log.csv')
+wetter_com_monitor = AccuracyMonitor(wetter_com, 'wetter.com', 'wetter_com_acc_log.csv', links['wetterzentrale.de'])
+wetter_de_monitor = AccuracyMonitor(wetter_de, 'wetter.de', 'wetter_de_acc_log.csv', links['wetterzentrale.de'])
+proplanta_de_monitor = AccuracyMonitor(proplanta_de, 'proplanta.de', 'proplanta_de_acc_log.csv', links['wetterzentrale.de'])
 accuracy_monitors = [wetter_de_monitor, wetter_com_monitor, proplanta_de_monitor]
 #a = wetter_com_monitor.avg_max_T_deviation(1, sequence=True, absolute_value=False, relative=False)
 #print(a)

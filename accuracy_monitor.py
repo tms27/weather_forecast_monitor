@@ -9,18 +9,19 @@ warnings.filterwarnings("error")
 
 
 class AccuracyMonitor:
-    def __init__(self, website, name, filename):
+    def __init__(self, website, name, filename, url_database=None):
         self.name = name
         self.filename = filename
         self.df_website = website.data()
         self.today = date.today()
+        self.url_database= url_database
         self.days_until_updated = 1  # number of days until the data of a day is published
         self.column_names = ['Day', 'Month', 'Year', 'max Temp.', 'Amount of Rain']
         self.month_str_to_int = {month: index for index, month in enumerate(calendar.month_name) if month}
 
         # retrieve new data from weather center and save to dataframe and file
         if os.path.isfile(self.filename) is False:
-            new_data = list(AccuracyMonitor.retrieve_max_T_and_rain_amount(days_ago=self.days_until_updated))
+            new_data = list(AccuracyMonitor.retrieve_max_T_and_rain_amount(self, days_ago=self.days_until_updated))
             target_date = self.today - timedelta(days=self.days_until_updated)
             self.df = pd.DataFrame(data=[[target_date.day, target_date.month, target_date.year, *new_data]],
                                    columns=self.column_names)
@@ -33,7 +34,7 @@ class AccuracyMonitor:
             if int(days_elapsed) > self.days_until_updated:
                 for i in range(days_elapsed-1, self.days_until_updated-1, -1):
                     target_date = self.today - timedelta(days=i)
-                    new_data = list(AccuracyMonitor.retrieve_max_T_and_rain_amount(days_ago=i))
+                    new_data = list(AccuracyMonitor.retrieve_max_T_and_rain_amount(self,days_ago=i))
                     if None in new_data:
                         break
                     new_row = [target_date.day, target_date.month, target_date.year, *new_data]
@@ -102,17 +103,14 @@ class AccuracyMonitor:
             actual_values.append(row.at[row.index[0], quantity_name])
         return actual_values
 
-    @staticmethod
-    def retrieve_max_T_and_rain_amount(day=None, month=None, year=None, days_ago=None):
+    def retrieve_max_T_and_rain_amount(self, day=None, month=None, year=None, days_ago=None):
         # method retrieves actual weather data from wetterzentrale.de of a certain date or a certain number of days ago
         if days_ago is None:
-            url = f'https://www.wetterzentrale.de/weatherdata_de.php?station=3379' \
-                  f'&jaar={year}&maand={month}&dag={day}'
+            url = f'{self.url_database}&jaar={year}&maand={month}&dag={day}'
             target_date = date(year, month, day)
         else:
             target_date = date.today() - timedelta(days=days_ago)
-            url = f'https://www.wetterzentrale.de/weatherdata_de.php?station=3379' \
-                  f'&jaar={target_date.year}&maand={target_date.month}&dag={target_date.day}'
+            url = f'{self.url_database}&jaar={target_date.year}&maand={target_date.month}&dag={target_date.day}'
         website = requests.get(url)
         soup = BeautifulSoup(website.content, 'html.parser')
         table = soup.find(attrs={'class': 'col-md-6'})
